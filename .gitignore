@@ -1,0 +1,13 @@
+*.iml
+.gradle
+luzar/.idea/
+target/
+.DS_Store
+build/
+.externalNativeBuild
+local.properties
+cmake-build-*/
+external/
+latest/
+tmp/
+.vs/

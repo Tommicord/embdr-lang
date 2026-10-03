@@ -1,0 +1,34 @@
+# https://clangd.llvm.org/config
+
+---
+
+If:
+  PathMatch: .*\.(cpp|h)
+
+---
+
+---
+
+CompileFlags:
+  Add:
+  - -include
+  - -Wno-unknown-pragmas
+
+---
+
+CompileFlags:
+  Add:
+  - -include
+
+---
+
+CompileFlags:
+  Compiler: clang
+  CompilationDatabase: .
+  Add:
+    - -x
+    - -Wno-unknown-cuda-version
+    - -Wno-pragma-system-header-outside-header
+    - -stdlib=libc++
+    - "-ferror-limit=0"
+    - "-ftemplate-backtrace-limit=0"
