@@ -26,6 +26,7 @@ set(CXXSTD_SOURCES
   embdr/cxxstd/memoryMaybe.cppm
   embdr/cxxstd/stringFormat.cppm
   embdr/cxxstd/stringifyFloat.cppm
+  embdr/cxxstd/stringifyNumber.cppm
   embdr/cxxstd/stringView.cppm
   embdr/cxxstd/io.cppm
   embdr/cxxstd/timeCore.cppm
@@ -43,6 +44,7 @@ set(CXXSTD_MODULES
   embdr.cxxstd.stringView
   embdr.cxxstd.stringFormat
   embdr.cxxstd.stringifyFloat
+  embdr.cxxstd.stringNumber
   embdr.cxxstd.io
   embdr.cxxstd.timeCore
   embdr.cxxstd.timeUtil
@@ -76,16 +78,10 @@ if (NOT EMBDR_DISABLE_ASAN)
   endif ()
 endif ()
 
-if (EMBDR_EMBEDDED)
-  if (MSVC)
-    target_compile_options(luzar-core INTERFACE /EHs-c- /GR-)
-  else ()
-    target_compile_options(luzar-core INTERFACE)
-    target_link_options(luzar-core INTERFACE -Wl,--gc-sections)
-  endif ()
-endif ()
-
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
+  if (MSVC)
+    target_compile_options(embdc-compiler INTERFACE /EHs-c- /GR-)
+  endif()
   if (NOT MSVC)
     # The project is not embedded, But is nice to remove binary bloat
     add_link_options(-fno-exceptions)
@@ -95,6 +91,7 @@ if (CMAKE_BUILD_TYPE STREQUAL "Release")
     add_link_options(-fno-use-cxa-atexit)
     add_link_options(-fno-unwind-tables)
     add_link_options(-fno-asynchronous-unwind-tables)
+    add_link_options(-Wl,--gc-sections)
   endif ()
 endif ()
 
@@ -112,6 +109,7 @@ if (EMBDR_BUILD_TESTS)
     embdr/tests/timeUtil_test.cpp
     embdr/tests/consoleUtil_test.cpp
     embdr/tests/logger_test.cpp
+    embdr/tests/stringFormat_test.cpp
   )
   target_link_libraries(embdr-tests PRIVATE embdc-compiler Catch2::Catch2WithMain)
 

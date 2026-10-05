@@ -689,17 +689,16 @@ constexpr ShortestAscii16 to_ascii16_buffer(char* buf, const uint64_t m, const u
                 __m128i little_endian_bcd = _mm_shuffle_epi32(bcd_swapped, _MM_SHUFFLE(0, 1, 2, 3));
 
 #        if EMBDR_NOT_REMOVE_FIRST_ZERO
-                little_endian_bcd = _mm_shuffle_epi8(
-                    little_endian_bcd,
-                    _mm_loadu_si128(reinterpret_cast<const __m128i*>(&(cv->shuffle_table[D17 ? 0 : 1]))));
+                __m128i move_mask;
+                memcpy(&move_mask, &(cv->shuffle_table[D17 ? 0 : 1]), 16);
+                little_endian_bcd = _mm_shuffle_epi8(little_endian_bcd, move_mask);
 #        endif
 
                 int mask = _mm_movemask_epi8(_mm_cmpgt_epi8(little_endian_bcd, _mm_setzero_si128()));
                 int tz = u64_lz_bits(mask);
 
                 __m128i ascii16 = _mm_add_epi8(little_endian_bcd, _mm_set1_epi8('0'));
-                _mm_storeu_si128(reinterpret_cast<__m128i*>(buf), _mm_set1_epi8('0'));
-                _mm_storeu_si128(reinterpret_cast<__m128i*>(buf + 16), _mm_set1_epi8('0'));
+                memset(buf, '0', 32);
                 return {ascii16, compute_double_dec_sig_len_sse2(up_down, tz, D17)};
 #endif
         } else {
@@ -717,31 +716,18 @@ constexpr ShortestAscii16 to_ascii16_buffer(char* buf, const uint64_t m, const u
                 uint64_t ijklmnop_bcd = is_little_endian() ? byteswap64_xjb(i_j_k_l_m_n_o_p) : i_j_k_l_m_n_o_p;
                 int tz = (ijklmnop == 0) ? 64 + abcdefgh_tz : ijklmnop_tz;
                 tz = tz / 8;
-                if !consteval {
-                        memcpy(buf, &ZERO, 8);
-                        memcpy(buf + 8, &ZERO, 8);
-                        memcpy(buf + 16, &ZERO, 8);
-                        memcpy(buf + 24, &ZERO, 8);
-                } else {
-                        for (int i = 0; i < 32; ++i)
-                                buf[i] = '0';
-                }
+                for (int i = 0; i < 32; ++i)
+                        buf[i] = '0';
                 ShortestAscii16 result{};
 #if EMBDR_USE_NEON || EMBDR_USE_SSE2
-                if !consteval {
-                        result.ascii16 = _mm_set_epi64x(ijklmnop_bcd | ZERO, abcdefgh_bcd | ZERO);
-                } else {
-                        // In consteval context, manually construct the __m128i from two 64-bit values
-                        // _mm_set_epi64x(hi, lo) puts hi in the high 64 bits and lo in the low 64 bits
-                        struct M128IUnion {
-                                uint64_t lo;
-                                uint64_t hi;
-                        };
-                        M128IUnion m_union;
-                        m_union.hi = abcdefgh_bcd | ZERO;
-                        m_union.lo = ijklmnop_bcd | ZERO;
-                        result.ascii16 = std::bit_cast<__m128i>(m_union);
-                }
+                struct M128IUnion {
+                        uint64_t lo;
+                        uint64_t hi;
+                };
+                M128IUnion m_union;
+                m_union.hi = abcdefgh_bcd | ZERO;
+                m_union.lo = ijklmnop_bcd | ZERO;
+                result.ascii16 = std::bit_cast<__m128i>(m_union);
                 result.dec_sig_len_sub1 = compute_double_dec_sig_len(up_down, tz, D17);
 #else
                 result.hi = abcdefgh_bcd | ZERO;

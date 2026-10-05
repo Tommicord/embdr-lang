@@ -54,13 +54,24 @@ namespace embdr::cxxstd {
                         return SimpleStringView(this->_M_buf, this->_M_len);
                 }
 
-                constexpr size_t write(const SimpleStringView text) noexcept {
+                constexpr size_t write(const SimpleStringView str) noexcept {
                         const size_t avail = N - this->_M_len;
-                        const size_t take = text.size() < avail ? text.size() : avail;
+                        const size_t take = str.size() < avail ? str.size() : avail;
                         for (size_t i = 0; i < take; ++i)
-                                this->_M_buf[this->_M_len + i] = text.data()[i];
+                                this->_M_buf[this->_M_len + i] = str.data()[i];
                         this->_M_len += take;
                         return take;
+                }
+                constexpr size_t write(const char c) noexcept {
+                        const size_t avail = N - this->_M_len;
+                        const size_t take = 1 < avail ? 1 : avail;
+                        if (take > 0) {
+                                this->_M_buf[this->_M_len++] = c;
+                                return take;
+                        }
+                        else {
+                                return take;
+                        }
                 }
 
                 /* Resets the sink to empty so its buffer can be reused for the next line. */
