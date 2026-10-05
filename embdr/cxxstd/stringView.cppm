@@ -1,51 +1,65 @@
-/*
- * Copyright (c) 2026, Tommicord
+/* Copyright(c) 2026 Tommicord
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, version 3.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+ * documentation files (the “Software”), to deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to the following conditions:
  *
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * General Public License for more details.
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the
+ * Software.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+ * THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+ * WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+ * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
 module;
 #include <type_traits>
 #include <limits>
 #include <string>
+#include <string_view>
 
 export module embdr.cxxstd.stringView;
 import embdr.cxxstd.memoryMaybe;
 
-template <typename T>
-constexpr int compare(T n1, T n2) noexcept {
-        using traits = std::numeric_limits<int>;
-        const auto diff = n1 - n2;
-        if (diff > traits::max())
-                return traits::max();
-        if (diff < traits::min())
-                return traits::min();
-        return static_cast<int>(diff);
-}
-template <typename CharTy, unsigned int N>
-constexpr auto sv_check(const unsigned long size, unsigned long pos, CharTy (&s)[N]) {
-        if (pos > size)
-                return embdr::cxxstd::make_err<unsigned long>(s);
-        else
-                return embdr::cxxstd::make_some(pos);
-}
-
-constexpr size_t sv_limit(const unsigned long size, const unsigned long pos, const unsigned long off) noexcept {
-        const bool testoff = off < size - pos;
-        return testoff ? off : size - pos;
-}
-
 namespace embdr::cxxstd {
+        template <typename T>
+        constexpr int compare(T n1, T n2) noexcept {
+                using traits = std::numeric_limits<int>;
+                if (n1 == n2)
+                        return 0;
+                const bool less = n1 < n2;
+                const auto diff = static_cast<long long>(less ? n2 - n1 : n1 - n2);
+                const auto cap = less ? -static_cast<long long>(traits::min()) : static_cast<long long>(traits::max());
+                if (diff >= cap)
+                        return less ? traits::min() : traits::max();
+                return less ? -static_cast<int>(diff) : static_cast<int>(diff);
+        }
+        class SvError {
+            public:
+                enum class Kind {
+                        badAccess,
+                };
+                SvError() = delete;
+                explicit SvError(Kind k) : _M_value(Kind::badAccess) {}
+                bool operator==(const SvError& other) const { return _M_value == other._M_value; }
+                bool operator==(const Kind t) const { return _M_value == t; }
+
+            private:
+                Kind _M_value;
+        };
+        constexpr auto sv_check(const unsigned long size, unsigned long pos) {
+                if (pos > size)
+                        return Maybe<unsigned long, SvError>(SvError(SvError::Kind::badAccess));
+                else
+                        return Maybe<unsigned long, SvError>(pos);
+        }
+
+        constexpr size_t sv_limit(const unsigned long size, const unsigned long pos, const unsigned long off) noexcept {
+                const bool testoff = off < size - pos;
+                return testoff ? off : size - pos;
+        }
+
         export template <typename CharTy, typename Traits = std::char_traits<std::remove_cv_t<CharTy>>>
         class BasicStringView {
                 static_assert(!std::is_array_v<CharTy>);
@@ -71,6 +85,8 @@ namespace embdr::cxxstd {
                 constexpr BasicStringView(const BasicStringView&) noexcept = default;
                 constexpr BasicStringView(const CharTy* str) noexcept : len{traits_type::length(str)}, str{str} {}
                 constexpr BasicStringView(const CharTy* str, const size_type len) noexcept : len{len}, str{str} {}
+                constexpr BasicStringView(const std::basic_string_view<CharTy> sv) noexcept :
+                    len(sv.size()), str(sv.data()) {}
                 template <std::contiguous_iterator Iter, std::sized_sentinel_for<Iter> End>
                         requires std::same_as<std::iter_value_t<Iter>, CharTy> && (!std::convertible_to<End, size_type>)
                 constexpr BasicStringView(Iter first, End last) noexcept(noexcept(last - first)) :
@@ -159,7 +175,7 @@ namespace embdr::cxxstd {
                 }
 
                 constexpr size_type copy(CharTy* str, size_type n, size_type pos = 0) const noexcept {
-                        auto pos_checked = sv_check(this->size(), pos, "embdr::cxxstd::BasicStringView::copy");
+                        auto pos_checked = sv_check(this->size(), pos);
                         if (!pos_checked.has_value())
                                 return 0;
                         pos = pos_checked.value();
@@ -170,7 +186,7 @@ namespace embdr::cxxstd {
 
                 [[nodiscard]]
                 constexpr BasicStringView substr(size_type pos = 0, const size_type n = not_found) const noexcept {
-                        auto pos_checked = sv_check(this->size(), pos, "embdr::cxxstd::BasicStringView::substr");
+                        auto pos_checked = sv_check(this->size(), pos);
                         if (!pos_checked.has_value())
                                 return BasicStringView();
                         pos = pos_checked.value();
@@ -183,7 +199,7 @@ namespace embdr::cxxstd {
                         const size_type rlen = std::min(this->len, str.len);
                         int ret = traits_type::compare(this->str, str.str, rlen);
                         if (ret == 0)
-                                ret = compare(this->len, str.len);
+                                ret = ::embdr::cxxstd::compare(this->len, str.len);
                         return ret;
                 }
 
@@ -461,7 +477,7 @@ namespace embdr::cxxstd {
                 }
 
                 constexpr size_type copy(CharTy* str, size_type n, size_type pos = 0) const noexcept {
-                        auto pos_checked = sv_check(this->size(), pos, "embdr::cxxstd::BasicTemplatedStringView::copy");
+                        auto pos_checked = sv_check(this->size(), pos);
                         if (!pos_checked.has_value())
                                 return 0;
                         pos = pos_checked.value();
@@ -475,7 +491,7 @@ namespace embdr::cxxstd {
                         const size_type rlen = std::min(this->capacity_value, str.capacity_value);
                         int ret = traits_type::compare(this->str, str.str, rlen);
                         if (ret == 0)
-                                ret = compare(this->size(), str.size());
+                                ret = ::embdr::cxxstd::compare(this->size(), str.size());
                         return ret;
                 }
                 [[nodiscard]]
@@ -627,19 +643,17 @@ namespace embdr::cxxstd {
         export template <typename, typename>
         struct IsStringConvertible : std::false_type {};
         template <typename T>
-        struct IsStringConvertible<T, char>
-            : std::bool_constant<std::is_convertible_v<T, BasicStringView<char>>> {};
+        struct IsStringConvertible<T, char> : std::bool_constant<std::is_convertible_v<T, BasicStringView<char>>> {};
         template <typename T>
-        struct IsStringConvertible<T, char8_t>
-            : std::bool_constant<std::is_convertible_v<T, BasicStringView<char>>> {};
+        struct IsStringConvertible<T, char8_t> : std::bool_constant<std::is_convertible_v<T, BasicStringView<char>>> {};
         template <typename T>
-        struct IsStringConvertible<T, char16_t>
-            : std::bool_constant<std::is_convertible_v<T, BasicStringView<char>>> {};
+        struct IsStringConvertible<T, char16_t> : std::bool_constant<std::is_convertible_v<T, BasicStringView<char>>> {
+        };
         export template <typename, typename>
         struct IsStringConstructible : std::false_type {};
         template <typename T>
-        struct IsStringConstructible<T, char>
-            : std::bool_constant<std::is_constructible_v<BasicStringView<char>, T>> {};
+        struct IsStringConstructible<T, char> : std::bool_constant<std::is_constructible_v<BasicStringView<char>, T>> {
+        };
         export template <typename, typename>
         struct IsNothrowStringConvertible : std::false_type {};
         template <typename T>
@@ -654,8 +668,7 @@ namespace embdr::cxxstd {
         export template <typename, typename>
         struct IsNothrowStringConstructible : std::false_type {};
         template <typename T>
-        struct IsNothrowStringConstructible<T, char>
-            : std::bool_constant<std::is_nothrow_constructible_v<T, char>> {};
+        struct IsNothrowStringConstructible<T, char> : std::bool_constant<std::is_nothrow_constructible_v<T, char>> {};
         template <typename T>
         struct IsNothrowStringConstructible<T, char8_t>
             : std::bool_constant<std::is_nothrow_constructible_v<T, char8_t>> {};
@@ -665,22 +678,9 @@ namespace embdr::cxxstd {
         export template <typename T, typename CharTy>
         using IsStringNothrowConvertible = IsNothrowStringConvertible<T, CharTy>;
         export template <typename T, typename CharTy>
-        using is_string_nothrow_constructible = IsNothrowStringConstructible<T, CharTy>;
+        using IsStringNothrowConstructible = IsNothrowStringConstructible<T, CharTy>;
 
-        template <typename T, typename CharTy>
-        inline constexpr bool is_string_convertible_ty = IsStringConvertible<T, CharTy>::value;
-        template <typename T, typename CharTy>
-        inline constexpr bool is_string_constructible_ty = IsStringConstructible<T, CharTy>::value;
-        template <typename T, typename CharTy>
-        inline constexpr bool is_nothrow_string_convertible_ty = IsNothrowStringConvertible<T, CharTy>::value;
-        template <typename T, typename CharTy>
-        inline constexpr bool is_nothrow_string_constructible_ty = IsNothrowStringConstructible<T, CharTy>::value;
-        template <typename T, typename CharTy>
-        inline constexpr bool is_string_nothrow_convertible_ty = is_nothrow_string_convertible_ty<T, CharTy>;
-        template <typename T, typename CharTy>
-        inline constexpr bool is_string_nothrow_constructible_ty = is_nothrow_string_constructible_ty<T, CharTy>;
-
-        template <unsigned int N1, unsigned int N2, typename CharTy, typename Traits>
+        export template <unsigned int N1, unsigned int N2, typename CharTy, typename Traits>
         [[nodiscard]]
         constexpr auto operator+(const BasicTemplatedStringView<N1, CharTy, Traits>& lhs,
                                  const BasicTemplatedStringView<N2, CharTy, Traits>& rhs) noexcept {
@@ -704,20 +704,20 @@ namespace embdr::cxxstd {
                         return static_cast<std::weak_ordering>(cmp <=> 0);
         }
 
-        template <std::contiguous_iterator Iter, std::sized_sentinel_for<Iter> End>
+        export template <std::contiguous_iterator Iter, std::sized_sentinel_for<Iter> End>
         BasicStringView(Iter, End) -> BasicStringView<std::iter_value_t<Iter>>;
 
-        template <std::ranges::contiguous_range Rg>
+        export template <std::ranges::contiguous_range Rg>
         BasicStringView(Rg&&) -> BasicStringView<std::ranges::range_value_t<Rg>>;
 
-        template <typename CharTy, typename Traits>
+        export template <typename CharTy, typename Traits>
         [[nodiscard]]
         constexpr bool operator==(BasicStringView<CharTy, Traits> x,
                                   std::type_identity_t<BasicStringView<CharTy, Traits>> y) noexcept {
                 return x.size() == y.size() && x.compare(y) == 0;
         }
 
-        template <typename CharTy, typename Traits>
+        export template <typename CharTy, typename Traits>
         [[nodiscard]]
         constexpr auto operator<=>(BasicStringView<CharTy, Traits> x,
                                    std::type_identity_t<BasicStringView<CharTy, Traits>> y) noexcept

@@ -51,7 +51,7 @@ type system.
 ### 1.2 Implicit compile-time evaluation
 
 Any expression whose operands are compile-time constants is evaluated at
-compile time *by default* — no `constexpr` annotation required:
+compile time *by default* — no `cexpr` annotation required:
 
 ```text
 cexpr int32 area = 3 * 4 * 5;        -- folded, 0 runtime cost
@@ -135,7 +135,7 @@ same time.** When ROS finishes a module, the vectorizer picks it up; LTO runs
 last across the linked unit. This keeps all three phases parallel without
 invalidating each other's results.
 
-### 2.3 Research foundation (papers *not* implemented in LLVM/GCC)
+### 2.3 Optimizations (papers *not* implemented in LLVM/GCC)
 
 These are the references behind the table in §2.1 — optimizations that stock
 LLVM/GCC do not ship:

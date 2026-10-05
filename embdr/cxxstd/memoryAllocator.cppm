@@ -1,18 +1,17 @@
-/*
- * Copyright (c) 2026, Tommicord
+/* Copyright(c) 2026 Tommicord
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, version 3.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+ * documentation files (the “Software”), to deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to the following conditions:
  *
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * General Public License for more details.
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the
+ * Software.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+ * THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+ * WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+ * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
 module;
 #include <cstdint>
@@ -135,8 +134,8 @@ namespace embdr::cxxstd {
                         requires(!std::is_unbounded_array_v<_T>) &&
                                 requires { ::new (static_cast<void*>(nullptr)) _T(std::declval<Args>()...); }
                 static _T* _S_construct_at(_T* location,
-                                               Args&&... args) noexcept(noexcept(::new (static_cast<void*>(nullptr))
-                                                                                     _T(std::declval<Args>()...))) {
+                                           Args&&... args) noexcept(noexcept(::new (static_cast<void*>(nullptr))
+                                                                                 _T(std::declval<Args>()...))) {
                         void* loc = location;
                         if (std::is_array_v<_T>) {
                                 static_assert(sizeof...(Args) == 0,
@@ -382,7 +381,7 @@ namespace embdr::cxxstd {
                                 ++max_order;
                         return max_order;
                 }
-                static constexpr size_type _S_max_block_count() noexcept  {
+                static constexpr size_type _S_max_block_count() noexcept {
                         const size_type order = _S_max_order();
                         if (constexpr size_type size_bits = sizeof(size_type) << 3; order >= size_bits - 1)
                                 return static_cast<size_type>(-1);
@@ -730,8 +729,8 @@ namespace embdr::cxxstd {
         template <unsigned int N>
         BitmapAllocator<T, Sz>::pointer
         BitmapAllocator<T, Sz>::_S_handle_needed(const size_type word_idx, const size_type next_word,
-                                                     const size_type start_bit, const size_type bits_needed,
-                                                     const size_type available) noexcept {
+                                                 const size_type start_bit, const size_type bits_needed,
+                                                 const size_type available) noexcept {
                 uint64_t first_mask = UINT64_MAX << start_bit;
                 this->_M_allocation_bitmap[word_idx] |= first_mask;
                 for (size_type w = word_idx + 1; w < next_word; ++w)
@@ -841,15 +840,14 @@ namespace embdr::cxxstd {
                         return block->_S_is_allocated();
         }
         template <class T, unsigned int Sz>
-        BuddyAllocator<T, Sz>::index_type
-        BuddyAllocator<T, Sz>::_S_find_free_block(const size_type order) noexcept {
+        BuddyAllocator<T, Sz>::index_type BuddyAllocator<T, Sz>::_S_find_free_block(const size_type order) noexcept {
                 size_type max_order = this->_S_max_order();
                 return this->_S_do_find_free_block(0, max_order + 1, order, 0);
         }
         template <class T, unsigned int Sz>
         BuddyAllocator<T, Sz>::index_type
         BuddyAllocator<T, Sz>::_S_do_find_free_block(size_type start, const size_type end, const size_type order,
-                                                         const index_type block_index) noexcept {
+                                                     const index_type block_index) noexcept {
                 if (start < end) {
                         size_type curr_order = end - 1 - start;
                         if (const index_type free_head = this->_M_buddy._M_free_heads[start];
@@ -868,7 +866,7 @@ namespace embdr::cxxstd {
         }
         template <class T, unsigned int Sz>
         void BuddyAllocator<T, Sz>::_S_split_block(index_type block_index, size_type current_order,
-                                                       size_type target_order) noexcept {
+                                                   size_type target_order) noexcept {
                 if (block_index >= _S_max_blocks || target_order > this->_S_max_order())
                         return;
                 if (!this->_M_buddy._M_block_storage[block_index]._S_is_valid())
@@ -877,7 +875,7 @@ namespace embdr::cxxstd {
         }
         template <class T, unsigned int Sz>
         void BuddyAllocator<T, Sz>::_S_do_split_block(index_type block_index, size_type current_order,
-                                                          size_type target_order) noexcept {
+                                                      size_type target_order) noexcept {
                 while (current_order > target_order) {
                         block_owner& block = this->_M_buddy._M_block_storage[block_index];
                         const auto new_size = block._S_size() >> 1;
@@ -905,8 +903,7 @@ namespace embdr::cxxstd {
                 return buddy_state::uninit;
         }
         template <class T, unsigned int Sz>
-        void BuddyAllocator<T, Sz>::_S_remove_from_free_list(index_type block_index,
-                                                                 const size_type order) noexcept {
+        void BuddyAllocator<T, Sz>::_S_remove_from_free_list(index_type block_index, const size_type order) noexcept {
                 block_owner& block = this->_M_buddy._M_block_storage[block_index];
                 const size_type free_list_index = _S_max_order() - order;
                 if (this->_M_buddy._M_free_heads[free_list_index] == block_index)

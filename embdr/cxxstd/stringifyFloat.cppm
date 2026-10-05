@@ -1,18 +1,11 @@
-/*
- * Copyright (c) 2026, Tommicord
+/* Copyright(c) 2026 Tommicord
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, version 3.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
  *
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * General Public License for more details.
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+ * THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
+
 
 module;
 #include <cinttypes>
@@ -31,7 +24,7 @@ module;
 #endif
 
 #ifndef EMBDR_USE_NEON
-#        if EMBDR_SIMD && EMBDR_IS_AARCH64 && (defined(__ARM_NEON__) || defined(__ARM_NEON))
+#        if EMBDR_IS_AARCH64 && (defined(__ARM_NEON__) || defined(__ARM_NEON))
 #                include <arm_neon.h>
 #                define EMBDR_USE_NEON 1
 #        else
@@ -40,7 +33,7 @@ module;
 #endif
 
 #ifndef EMBDR_USE_SSE2
-#        if EMBDR_SIMD && defined(__SSE2__) && __SSE2__
+#        if defined(__SSE2__) && __SSE2__
 #                include <immintrin.h>
 #                define EMBDR_USE_SSE2 1
 #        else
@@ -294,8 +287,7 @@ constexpr uint64_t is_little_endian() {
         }
 }
 
-constexpr uint64_t cmov_branchless(const uint64_t condition, const uint64_t true_value,
-                                          const uint64_t false_value) {
+constexpr uint64_t cmov_branchless(const uint64_t condition, const uint64_t true_value, const uint64_t false_value) {
 #if !XJB_IS_REAL_GCC || !defined(__amd64__)
         return condition ? true_value : false_value;
 #else
@@ -512,11 +504,12 @@ struct FloatTable {
                         current_line[max_dec_sig_len + 2] = static_cast<unsigned char>(move_pos);
 
                         for (int dec_sig_len = 1; dec_sig_len <= max_dec_sig_len; dec_sig_len++) {
-                                uint64_t exp_pos = (e10_DN <= e10 && e10 <= -1)
-                                                       ? dec_sig_len
-                                                       : (0 <= e10 && e10 <= e10_UP
-                                                              ? (e10 + 3 > dec_sig_len + 1 ? e10 + 3 : dec_sig_len + 1)
-                                                              : (dec_sig_len + 1 - (dec_sig_len == 1)));
+                                const uint64_t exp_pos =
+                                    (e10_DN <= e10 && e10 <= -1)
+                                        ? dec_sig_len
+                                        : (0 <= e10 && e10 <= e10_UP
+                                               ? (e10 + 3 > dec_sig_len + 1 ? e10 + 3 : dec_sig_len + 1)
+                                               : (dec_sig_len + 1 - (dec_sig_len == 1)));
                                 current_line[dec_sig_len - 1] = static_cast<unsigned char>(exp_pos);
                         }
                 }
@@ -606,7 +599,7 @@ constexpr ShortestAscii to_ascii8_final(uint64_t abcdefgh_BCD, uint32_t lz, uint
 
 constexpr ShortestAscii to_ascii8_buffer(const uint64_t m, const uint32_t up_down, uint32_t& lz,
                                          const FloatTable::const_value_float* c) {
-        uint64_t abcdefgh_BCD;
+        uint64_t abcdefgh_BCD = 0;
         if !consteval {
 #if EMBDR_USE_NEON
                 int32x2_t tenthousands =
@@ -740,14 +733,14 @@ constexpr ShortestAscii16 to_ascii16_buffer(char* buf, const uint64_t m, const u
                 } else {
                         // In consteval context, manually construct the __m128i from two 64-bit values
                         // _mm_set_epi64x(hi, lo) puts hi in the high 64 bits and lo in the low 64 bits
-                        struct m128i_union {
+                        struct M128IUnion {
                                 uint64_t lo;
                                 uint64_t hi;
                         };
-                        m128i_union m;
-                        m.hi = abcdefgh_bcd | ZERO;
-                        m.lo = ijklmnop_bcd | ZERO;
-                        result.ascii16 = std::bit_cast<__m128i>(m);
+                        M128IUnion m_union;
+                        m_union.hi = abcdefgh_bcd | ZERO;
+                        m_union.lo = ijklmnop_bcd | ZERO;
+                        result.ascii16 = std::bit_cast<__m128i>(m_union);
                 }
                 result.dec_sig_len_sub1 = compute_double_dec_sig_len(up_down, tz, D17);
 #else
@@ -1076,20 +1069,20 @@ constexpr char* xjb32(char* buff, const float v) {
                 memcpy(&buff[8 - lz], &one, 4);
                 memmove(&buff[move_pos], &buff[dot_pos], 8);
         } else {
-                struct tmp_ascii {
+                struct TmpAscii {
                         ShortestAscii ascii;
                 };
-                const tmp_ascii values{s};
-                struct char_tmp_ascii_bytes {
-                        char b[sizeof(tmp_ascii)];
+                const TmpAscii values{s};
+                struct CharTmpAsciiBytes {
+                        char b[sizeof(TmpAscii)];
                 };
-                struct char_uint32_bytes {
+                struct CharUin32Bytes {
                         char b[sizeof(uint32_t)];
                 };
-                auto s_bytes = std::bit_cast<char_tmp_ascii_bytes>(values.ascii);
+                auto s_bytes = std::bit_cast<CharTmpAsciiBytes>(values.ascii);
                 for (int i = 0; i < 8; ++i)
                         buff[i] = s_bytes.b[i];
-                auto one_bytes = std::bit_cast<char_uint32_bytes>(one);
+                auto one_bytes = std::bit_cast<CharUin32Bytes>(one);
                 for (int i = 0; i < 4; ++i)
                         buff[8 - lz + i] = one_bytes.b[i];
                 if (move_pos < dot_pos) {

@@ -49,9 +49,6 @@ set(CXXSTD_MODULES
   embdr.cxxstd.consoleUtil
   embdr.cxxstd.logger
 )
-set(MODULE_PATH "${CMAKE_BINARY_DIR}/mod")
-file(MAKE_DIRECTORY ${MODULE_PATH})
-
 add_library(embdc-compiler STATIC)
 target_sources(
   embdc-compiler
