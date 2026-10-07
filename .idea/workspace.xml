@@ -4,10 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="BackendCodeEditorMiscSettings">
-    <option name="/Default/Environment/Hierarchy/GeneratedFilesCacheKey/Timestamp/@EntryValue" value="10" type="long" />
+    <option name="/Default/Environment/Hierarchy/GeneratedFilesCacheKey/Timestamp/@EntryValue" value="6" type="long" />
     <option name="/Default/Housekeeping/FeatureSuggestion/FeatureSuggestionManager/DisabledSuggesters/=SwitchToGoToActionSuggester/@EntryIndexedValue" value="true" type="bool" />
     <option name="/Default/Housekeeping/LiveTemplatesHousekeeping/HotspotSessionHintIsShown/@EntryValue" value="true" type="bool" />
-    <option name="/Default/Housekeeping/RefactoringsMru/RenameRefactoring/DoSearchForTextInStrings/@EntryValue" value="true" type="bool" />
   </component>
   <component name="CMakePresetLoader">{
   &quot;useNewFormat&quot;: true
@@ -41,9 +40,35 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5fd22608-2df2-4ed4-bf0a-9c20dd852fbf" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/embdr/cxxstd/utfEncode.cppm" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.clang-format" beforeDir="false" afterPath="$PROJECT_DIR$/.clang-format" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/editor.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/editor.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/embdr/cxxstd/consoleUtil.cppm" beforeDir="false" afterPath="$PROJECT_DIR$/embdr/cxxstd/consoleUtil.cppm" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/AGENTS.md" beforeDir="false" afterPath="$PROJECT_DIR$/AGENTS.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/embdr/cxxstd/consoleUtil.cppm" beforeDir="false" afterPath="$PROJECT_DIR$/embdr/cxxstd/console.cppm" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/embdr/cxxstd/io.cppm" beforeDir="false" afterPath="$PROJECT_DIR$/embdr/cxxstd/io.cppm" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/embdr/cxxstd/logger.cppm" beforeDir="false" afterPath="$PROJECT_DIR$/embdr/cxxstd/logger.cppm" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/embdr/cxxstd/memoryAllocator.cppm" beforeDir="false" afterPath="$PROJECT_DIR$/embdr/cxxstd/memoryAllocator.cppm" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/embdr/cxxstd/memoryIterator.cppm" beforeDir="false" afterPath="$PROJECT_DIR$/embdr/cxxstd/memoryIterator.cppm" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/embdr/cxxstd/memoryMaybe.cppm" beforeDir="false" afterPath="$PROJECT_DIR$/embdr/cxxstd/memoryMaybe.cppm" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/embdr/cxxstd/sigHandler.cppm" beforeDir="false" afterPath="$PROJECT_DIR$/embdr/cxxstd/sigHandler.cppm" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/embdr/cxxstd/stringFormat.cppm" beforeDir="false" afterPath="$PROJECT_DIR$/embdr/cxxstd/stringFormat.cppm" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/embdr/cxxstd/stringView.cppm" beforeDir="false" afterPath="$PROJECT_DIR$/embdr/cxxstd/stringView.cppm" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/embdr/cxxstd/stringifyNumber.cppm" beforeDir="false" afterPath="$PROJECT_DIR$/embdr/cxxstd/stringifyNumber.cppm" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/embdr/cxxstd/timeUtil.cppm" beforeDir="false" afterPath="$PROJECT_DIR$/embdr/cxxstd/timeUtil.cppm" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/embdr/cxxstd/unwind.cppm" beforeDir="false" afterPath="$PROJECT_DIR$/embdr/cxxstd/unwind.cppm" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/embdr/cxxstd/unwindPrettify.cppm" beforeDir="false" afterPath="$PROJECT_DIR$/embdr/cxxstd/unwindPrettify.cppm" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/embdr/embdc/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/embdr/embdc/main.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/embdr/tests/consoleUtil_test.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/embdr/tests/consoleUtil_test.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/embdr/tests/io_test.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/embdr/tests/io_test.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/embdr/tests/logger_test.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/embdr/tests/logger_test.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/embdr/tests/sigHandler_test.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/embdr/tests/sigHandler_test.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/embdr/tests/timeUtil_test.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/embdr/tests/timeUtil_test.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/embdr/tests/unwind_test.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/embdr/tests/unwind_test.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/syntax.txt" beforeDir="false" afterPath="$PROJECT_DIR$/syntax.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -57,7 +82,9 @@
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$PROJECT_DIR$/embdr/cxxstd/stringifyFloat.cppm" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/embdr/embdc/main.cpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/tommicord/Documentos/Proyectos/test/embdr/lex/constructibleMatcherExpr.cppm" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://constructibleMatcherExpr.cppm" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://lexer_constructible_matcher.cppm" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="MacroExpansionManager">
     <option name="directoryName" value="kGRmcSxT" />
@@ -80,36 +107,36 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "CMake Application.embdc.executor": "Run",
-    "CMake Application.embdr-tests.executor": "Run",
-    "CidrDebugProfileConversion": "true",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.RadMigrateCodeStyle": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.cidr.known.project.marker": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.readMode.enableVisualFormatting": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "cf.advertisement.text.overridden": "true",
-    "cf.first.check.clang-format": "false",
-    "cidr.known.project.marker": "true",
-    "codeWithMe.voiceChat.enabledByDefault": "false",
-    "ctest.advertisement.all.test.configuration.is.created": "true",
-    "git-widget-placeholder": "main",
-    "last_opened_file_path": "/home/tommicord/Documentos/Proyectos/test",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.jshint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.jshint": "",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "python.packages.toolwindow.project.migrated.to.right.top.v2": "true",
-    "settings.editor.selected.configurable": "CMakeSettings"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;CMake Application.embdc.executor&quot;: &quot;Run&quot;,
+    &quot;CMake Application.embdr-tests.executor&quot;: &quot;Run&quot;,
+    &quot;CidrDebugProfileConversion&quot;: &quot;true&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.RadMigrateCodeStyle&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;cf.advertisement.text.overridden&quot;: &quot;true&quot;,
+    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
+    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
+    &quot;ctest.advertisement.all.test.configuration.is.created&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/tommicord/Documentos/Proyectos/test&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.jshint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.jshint&quot;: &quot;&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;python.packages.toolwindow.project.migrated.to.right.top.v2&quot;: &quot;true&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/embdr/embdc/src" />
@@ -119,12 +146,7 @@
       <recent name="$PROJECT_DIR$" />
     </key>
   </component>
-  <component name="RunManager" selected="CMake Application.embdr-tests">
-    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
-      </method>
-    </configuration>
+  <component name="RunManager" selected="CMake Application.embdc">
     <configuration name="Catch2" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="embedrite" TARGET_NAME="Catch2" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -136,6 +158,11 @@
       </method>
     </configuration>
     <configuration name="embdc-compiler" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="embedrite" TARGET_NAME="embdc-compiler" CONFIG_NAME="Release">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="embdc" type="CMakeRunConfiguration" factoryName="Application" temporary="true" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="embedrite" TARGET_NAME="embdc" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="embedrite" RUN_TARGET_NAME="embdc">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -162,28 +189,41 @@
       <item itemvalue="CMake Application.embdc-compiler" />
       <item itemvalue="CMake Application.embdr-tests" />
       <item itemvalue="CMake Application.libembdc" />
+      <item itemvalue="CMake Application.embdc" />
       <item itemvalue="CTest Application.All CTest" />
     </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="CMake Application.embdc" />
+      </list>
+    </recent_temporary>
   </component>
-  <component name="SelectedDebugProfileService"><![CDATA[{
-  "profileIdByStamp": [
+  <component name="SelectedDebugProfileService">{
+  &quot;profileIdByStamp&quot;: [
     {
-      "first": {
-        "##RUN_CONFIGURATION##": "CMake Application.embdr-tests",
-        "cmake": "CMakeBuildProfile:Debug"
+      &quot;first&quot;: {
+        &quot;##RUN_CONFIGURATION##&quot;: &quot;CMake Application.embdr-tests&quot;,
+        &quot;cmake&quot;: &quot;CMakeBuildProfile:Debug&quot;
       },
-      "second": "fba82455-787c-47ae-9cc0-b7e0a1e3a042"
+      &quot;second&quot;: &quot;fba82455-787c-47ae-9cc0-b7e0a1e3a042&quot;
     },
     {
-      "first": {
-        "##RUN_CONFIGURATION##": "CMake Application.Catch2WithMain",
-        "cmake": "CMakeBuildProfile:Debug"
+      &quot;first&quot;: {
+        &quot;##RUN_CONFIGURATION##&quot;: &quot;CMake Application.Catch2WithMain&quot;,
+        &quot;cmake&quot;: &quot;CMakeBuildProfile:Debug&quot;
       },
-      "second": "fba82455-787c-47ae-9cc0-b7e0a1e3a042"
+      &quot;second&quot;: &quot;fba82455-787c-47ae-9cc0-b7e0a1e3a042&quot;
+    },
+    {
+      &quot;first&quot;: {
+        &quot;##RUN_CONFIGURATION##&quot;: &quot;CMake Application.embdc&quot;,
+        &quot;cmake&quot;: &quot;CMakeBuildProfile:Debug&quot;
+      },
+      &quot;second&quot;: &quot;fba82455-787c-47ae-9cc0-b7e0a1e3a042&quot;
     }
   ],
-  "modificationCount": 19
-}]]></component>
+  &quot;modificationCount&quot;: 25
+}</component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="5fd22608-2df2-4ed4-bf0a-9c20dd852fbf" name="Changes" comment="" />

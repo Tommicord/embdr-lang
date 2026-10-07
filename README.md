@@ -35,12 +35,12 @@ Design goals, in order of priority:
 
 | Category       | Types                                                                                                                                      |
 |----------------|--------------------------------------------------------------------------------------------------------------------------------------------|
-| Integers       | `i8..i64`, `u8..u64`, `int128`, `int256`, `int512`                                                                                         |
-| Floats         | `f16`, `f32`, `f64`, `float128`, `float256`, `float512`                                                                                    |
+| Integers       | `int8..int64`, `uint8..uint64`, `int128`, `int256`, `int512`                                                                               |
+| Floats         | `float16`, `float32`, `float64`, `float128`, `float256`, `float512`                                                                        |
 | SIMD vectors   | lane types backed by NEON / Helium (MVE) / RISC-V V / SSE / AVX-512 when present                                                           |
 | Error handling | `result<T, E>` (monad, `?` operator) — no exceptions                                                                                       |
 | Optionality    | no `null` anywhere; absence is an explicit sum type                                                                                        |
-| Pointers       | never null, always point to initialized memory; `unsafe`/`volatile` blocks are the only way to opt out (and the only place UB is possible) |
+| Pointers       | never null, always point to initialized memory; `volatile` blocks are the only way to opt out (and the only place UB is possible)            |
 
 Wide types lower to hardware when the ISA provides it (e.g. AVX-512 ZMM,
 SVE, RVV registers) and otherwise to multi-limb software arithmetic on the
@@ -54,9 +54,9 @@ Any expression whose operands are compile-time constants is evaluated at
 compile time *by default* — no `cexpr` annotation required:
 
 ```text
-cexpr int32 area = 3 * 4 * 5;        -- folded, 0 runtime cost
-cexpr int32 mask = (1 << 16) - 1;    -- folded to an immediate
-cexpr int32 p    = &static_buf[3];   -- folded to a fixed absolute address
+int32 area = 3 * 4 * 5;          // folded, 0 runtime cost (no annotation)
+int32 mask = (1 << 16) - 1;      // folded to an immediate
+int32 p    = &static_buf[3];     // folded to a fixed absolute address
 ```
 
 A `cexpr` annotation only *forces* evaluation (and is a compile error if the
@@ -66,9 +66,9 @@ never implicitly folded — purity is inferred per expression.
 ### 1.3 Error handling
 
 ```text
-fn read_sensor(bus: I2c) -> result<Sample, BusError> {
-    let raw = bus.read(REG_TEMP)?;   -- propagates on error
-    Ok(decode(raw))
+function ::read_sensor(bus: i2c::bus) -> result<sample, i2c::error> {
+    let raw = bus.read_reg(REG_TEMP)?;   // propagates on error
+    ret Ok(decode(raw));
 }
 ```
 
@@ -77,9 +77,9 @@ No `throw`, no unwind tables in the binary, no `std::unwind` runtime.
 ### 1.4 Modules
 
 ```text
-module drivers.bme280;
-
-export fn init(bus: I2c) -> result<Device, BusError> { ... }
+module drivers::bme280 {
+    pub function ::init(bus: i2c::bus) -> result<device, i2c::error> { ... }
+}
 ```
 
 Modules are the unit of parallel compilation *and* the unit of the staged
@@ -90,8 +90,8 @@ optimization pipeline (§2.3).
 - Pointers are always dereferenceable and point to initialized objects.
 - The compiler proves this via the **ROS (Reference-Ownership Semantics)
   checker** — a borrow-checker-style ownership/lifetime analysis.
-- `unsafe { }` and `volatile` accesses are the only regions where UB can
-  occur; they are explicit, auditable and greppable.
+- `volatile { }` blocks and `volatile` objects are the only regions where UB
+  can occur; they are explicit, auditable and greppable.
 
 ---
 
@@ -107,7 +107,7 @@ optimization pipeline (§2.3).
 | 4  | AST-level branchless rewrite                    | non-branchless → branchless (IR-level melding, see *MERIT* below)             | planned                  |
 | 5  | 8× unroll (simple loops) / SIMD (complex loops) | unroll-and-jam vs. vectorization chosen per loop                              | planned                  |
 | 6  | Linked-structure prefetching                    | compiler inserts cache-line prefetches for linked lists/heaps                 | planned                  |
-| 7  | ROS checker                                     | ownership/lifetime verification, no GC, no `unsafe` leakage                   | planned                  |
+| 7  | ROS checker                                     | ownership/lifetime verification, no GC, UB only inside `volatile`             | planned                  |
 | 8  | Code vectorizer                                 | target-aware vectorization of wide types (`int256/512`, `float*`)             | planned                  |
 | 9  | LTO                                             | per-module, staged after ROS + vectorizer                                     | planned                  |
 | 10 | Inlining control                                | large functions are **not** implicitly inlined (fast compiles, small code)    | planned                  |
@@ -196,7 +196,7 @@ LLVM/GCC do not ship:
 
 ---
 
-## 5. Roadmap
+## 3. Roadmap
 
 - [ ] Phase 0: test harness
 - [ ] Phase 1: lexer
@@ -213,6 +213,6 @@ LLVM/GCC do not ship:
 
 ---
 
-## 6. License
+## 4. License
 
-GPL-3.0 (see [LICENSE](LICENSE)).
+MIT (see [LICENSE](LICENSE)).

@@ -140,7 +140,7 @@ TEST_CASE("sig_is_fault_signal classifies signals", "[sigHandler]") {
 
 TEST_CASE("sig_error_message formats syscall and unsupported errors", "[sigHandler]") {
         char buf[96];
-        const SigInstallError syscall_error{SigInstallErrorKind::syscall, "sigaction", 22};
+        const SigInstallError syscall_error{SigInstallErrorKind::SYSCALL, "sigaction", 22};
         const size_t written = sig_error_message(syscall_error, buf, sizeof(buf));
         REQUIRE(std::string(buf) == "`sigaction` failed with errno 22");
         REQUIRE(written == std::strlen(buf));
@@ -175,7 +175,7 @@ TEST_CASE("sig_install lifecycle installs and restores dispositions", "[sigHandl
         // sig_install also selects the default alternate signal stack.
         stack_t ss{};
         REQUIRE(::sigaltstack(nullptr, &ss) == 0);
-        REQUIRE(ss.ss_size == sig_default_alt_stack_size);
+        REQUIRE(ss.ss_size == _S_sig_default_alt_stack_size);
         REQUIRE((ss.ss_flags & SS_DISABLE) == 0);
 
         REQUIRE(sig_uninstall());
@@ -189,16 +189,16 @@ TEST_CASE("sig_install lifecycle installs and restores dispositions", "[sigHandl
 }
 
 TEST_CASE("sig_install_alt_stack rejects buffers below the minimum", "[sigHandler]") {
-        alignas(16) static char small[sig_min_alt_stack_size / 2];
+        alignas(16) static char small[_S_sig_min_alt_stack_size / 2];
         SigInstallError err;
         REQUIRE(!sig_install_alt_stack(small, sizeof(small), &err));
-        REQUIRE(err._M_kind == SigInstallErrorKind::syscall);
+        REQUIRE(err._M_kind == SigInstallErrorKind::SYSCALL);
         REQUIRE(SimpleStringView(err._M_op) == "sigaltstack:size");
         REQUIRE(err._M_errno_value == EINVAL);
 }
 
 TEST_CASE("sig_install_alt_stack accepts a large enough buffer", "[sigHandler]") {
-        alignas(16) static char big[sig_min_alt_stack_size * 2];
+        alignas(16) static char big[_S_sig_min_alt_stack_size * 2];
         SigInstallError err;
         REQUIRE(sig_install_alt_stack(big, sizeof(big), &err));
 

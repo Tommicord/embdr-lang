@@ -215,33 +215,33 @@ TEST_CASE("ConsoleResult carries ok and error states", "[consoleUtil]") {
         REQUIRE(!ok.has_error());
         REQUIRE(static_cast<bool>(ok));
 
-        const ConsoleError detail{ConsoleErrorKind::bufferTooSmall, 7};
+        const ConsoleError detail{ConsoleErrorKind::BUFFER_TO_SMALL, 7};
         const ConsoleResult err = ConsoleResult::err(detail);
         REQUIRE(!err.has_value());
         REQUIRE(err.has_error());
         REQUIRE(!static_cast<bool>(err));
-        REQUIRE(err.error()._M_kind == ConsoleErrorKind::bufferTooSmall);
+        REQUIRE(err.error()._M_kind == ConsoleErrorKind::BUFFER_TO_SMALL);
         REQUIRE(err.error()._M_code == 7);
 }
 
 TEST_CASE("console_error_message formats every error kind", "[consoleUtil]") {
         char buf[64];
-        const ConsoleError syscall_error{ConsoleErrorKind::syscallError, 22};
+        const ConsoleError syscall_error{ConsoleErrorKind::SYSCALL, 22};
         size_t written = console_error_message(syscall_error, buf, sizeof(buf));
         REQUIRE(std::string(buf) == "syscall error: 22");
         REQUIRE(written == std::strlen(buf));
 
-        written = console_error_message(ConsoleError{ConsoleErrorKind::syscallError, -22}, buf, sizeof(buf));
+        written = console_error_message(ConsoleError{ConsoleErrorKind::SYSCALL, -22}, buf, sizeof(buf));
         REQUIRE(std::string(buf) == "syscall error: -22");
         REQUIRE(written == std::strlen(buf));
 
-        REQUIRE(console_error_message(ConsoleError{ConsoleErrorKind::ioError, 5}, buf, sizeof(buf)) > 0);
+        REQUIRE(console_error_message(ConsoleError{ConsoleErrorKind::IO, 5}, buf, sizeof(buf)) > 0);
         REQUIRE(std::string(buf) == "I/O error");
-        REQUIRE(console_error_message(ConsoleError{ConsoleErrorKind::encodingError, 0}, buf, sizeof(buf)) > 0);
+        REQUIRE(console_error_message(ConsoleError{ConsoleErrorKind::ENCODING, 0}, buf, sizeof(buf)) > 0);
         REQUIRE(std::string(buf) == "encoding error");
-        REQUIRE(console_error_message(ConsoleError{ConsoleErrorKind::handleUnavailable, 0}, buf, sizeof(buf)) > 0);
+        REQUIRE(console_error_message(ConsoleError{ConsoleErrorKind::HANDLE_UNAVAILABLE, 0}, buf, sizeof(buf)) > 0);
         REQUIRE(std::string(buf) == "console handle unavailable");
-        REQUIRE(console_error_message(ConsoleError{ConsoleErrorKind::bufferTooSmall, 0}, buf, sizeof(buf)) > 0);
+        REQUIRE(console_error_message(ConsoleError{ConsoleErrorKind::BUFFER_TO_SMALL, 0}, buf, sizeof(buf)) > 0);
         REQUIRE(std::string(buf) == "buffer too small");
 
         char small[8];
@@ -291,7 +291,7 @@ TEST_CASE("console_write_stderr reports a closed descriptor", "[consoleUtil]") {
                 const ConsoleResult result = console_write_stderr(SimpleStringView("lost"));
                 if (result.has_value())
                         ::_exit(91);
-                if (result.error()._M_kind != ConsoleErrorKind::ioError)
+                if (result.error()._M_kind != ConsoleErrorKind::IO)
                         ::_exit(92);
                 if (result.error()._M_code != EBADF)
                         ::_exit(93);

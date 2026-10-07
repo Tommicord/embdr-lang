@@ -9,14 +9,18 @@
 
 #include <catch2/catch_all.hpp>
 
+#include <algorithm>
 #include <cerrno>
 #include <cstdint>
 #include <cstring>
 #include <fcntl.h>
+#include <mutex>
 #include <regex>
 #include <string>
 #include <sys/wait.h>
+#include <thread>
 #include <unistd.h>
+#include <vector>
 
 import embdr.cxxstd.logger;
 import embdr.cxxstd.stringView;
@@ -35,6 +39,35 @@ namespace {
                 }
                 LogResult write_stderr(const SimpleStringView bytes) override {
                         this->err.append(bytes.data(), bytes.size());
+                        return LogResult::ok();
+                }
+                LogResult flush() override { return LogResult::ok(); }
+        };
+
+        /* Writer whose every stream write fails; drives the console fallback path. */
+        struct FailingWriter : public LogWriter {
+                LogResult write_stdout(const SimpleStringView) override {
+                        return LogResult::err(LogError::io_error(5));
+                }
+                LogResult write_stderr(const SimpleStringView) override {
+                        return LogResult::err(LogError::io_error(5));
+                }
+                LogResult flush() override { return LogResult::ok(); }
+        };
+
+        /* Mutex-guarded writer used by the concurrent logging test. */
+        struct LockedWriter : public LogWriter {
+                mutable std::mutex lock;
+                std::string out;
+
+                LogResult write_stdout(const SimpleStringView bytes) override {
+                        const std::lock_guard<std::mutex> guard(this->lock);
+                        this->out.append(bytes.data(), bytes.size());
+                        return LogResult::ok();
+                }
+                LogResult write_stderr(const SimpleStringView bytes) override {
+                        const std::lock_guard<std::mutex> guard(this->lock);
+                        this->out.append(bytes.data(), bytes.size());
                         return LogResult::ok();
                 }
                 LogResult flush() override { return LogResult::ok(); }
@@ -138,7 +171,7 @@ namespace {
                 ~AnsiGuard() { set_ansi_colors(AnsiColors::autoDetect); }
         };
         struct MinLevelGuard {
-                ~MinLevelGuard() { set_min_log_level(LogLevel::debug); }
+                ~MinLevelGuard() { set_min_log_level(LogLevel::DEBUG); }
         };
         struct WriterGuard {
                 ~WriterGuard() { set_log_writer(default_log_writer()); }
@@ -155,42 +188,42 @@ namespace {
 } // namespace
 
 TEST_CASE("log level discriminants and ordering", "[logger]") {
-        REQUIRE(static_cast<uint8_t>(LogLevel::debug) == 0);
-        REQUIRE(static_cast<uint8_t>(LogLevel::info) == 1);
-        REQUIRE(static_cast<uint8_t>(LogLevel::error) == 2);
-        REQUIRE(static_cast<uint8_t>(LogLevel::irr) == 3);
-        REQUIRE(LogLevel::debug < LogLevel::info);
-        REQUIRE(LogLevel::info < LogLevel::error);
-        REQUIRE(LogLevel::error < LogLevel::irr);
+        REQUIRE(static_cast<uint8_t>(LogLevel::DEBUG) == 0);
+        REQUIRE(static_cast<uint8_t>(LogLevel::INFO) == 1);
+        REQUIRE(static_cast<uint8_t>(LogLevel::ERROR) == 2);
+        REQUIRE(static_cast<uint8_t>(LogLevel::IRR) == 3);
+        REQUIRE(LogLevel::DEBUG < LogLevel::INFO);
+        REQUIRE(LogLevel::INFO < LogLevel::ERROR);
+        REQUIRE(LogLevel::ERROR < LogLevel::IRR);
 }
 
 TEST_CASE("log level names", "[logger]") {
-        REQUIRE(as_str(LogLevel::debug) == "DEBUG");
-        REQUIRE(as_str(LogLevel::info) == "INFO");
-        REQUIRE(as_str(LogLevel::error) == "ERROR");
-        REQUIRE(as_str(LogLevel::irr) == "IRR");
+        REQUIRE(as_str(LogLevel::DEBUG) == "DEBUG");
+        REQUIRE(as_str(LogLevel::INFO) == "INFO");
+        REQUIRE(as_str(LogLevel::ERROR) == "ERROR");
+        REQUIRE(as_str(LogLevel::IRR) == "IRR");
 }
 
 TEST_CASE("min log level filters enabled levels", "[logger]") {
         const MinLevelGuard guard;
 
-        set_min_log_level(LogLevel::info);
-        REQUIRE(min_log_level() == LogLevel::info);
-        REQUIRE(!is_enabled(LogLevel::debug));
-        REQUIRE(is_enabled(LogLevel::info));
-        REQUIRE(is_enabled(LogLevel::error));
-        REQUIRE(is_enabled(LogLevel::irr));
+        set_min_log_level(LogLevel::INFO);
+        REQUIRE(min_log_level() == LogLevel::INFO);
+        REQUIRE(!is_enabled(LogLevel::DEBUG));
+        REQUIRE(is_enabled(LogLevel::INFO));
+        REQUIRE(is_enabled(LogLevel::ERROR));
+        REQUIRE(is_enabled(LogLevel::IRR));
 
-        set_min_log_level(LogLevel::error);
-        REQUIRE(min_log_level() == LogLevel::error);
-        REQUIRE(!is_enabled(LogLevel::debug));
-        REQUIRE(!is_enabled(LogLevel::info));
-        REQUIRE(is_enabled(LogLevel::error));
-        REQUIRE(is_enabled(LogLevel::irr));
+        set_min_log_level(LogLevel::ERROR);
+        REQUIRE(min_log_level() == LogLevel::ERROR);
+        REQUIRE(!is_enabled(LogLevel::DEBUG));
+        REQUIRE(!is_enabled(LogLevel::INFO));
+        REQUIRE(is_enabled(LogLevel::ERROR));
+        REQUIRE(is_enabled(LogLevel::IRR));
 
-        set_min_log_level(LogLevel::debug);
-        REQUIRE(min_log_level() == LogLevel::debug);
-        REQUIRE(is_enabled(LogLevel::debug));
+        set_min_log_level(LogLevel::DEBUG);
+        REQUIRE(min_log_level() == LogLevel::DEBUG);
+        REQUIRE(is_enabled(LogLevel::DEBUG));
 }
 
 TEST_CASE("log_error_message formats every LogError kind", "[logger]") {
@@ -226,10 +259,10 @@ TEST_CASE("log_with_timestamp accepts every level on the default writer", "[logg
         bool ok_error = false;
         bool ok_irr = false;
         with_silenced_streams([&] {
-                ok_debug = log_with_timestamp(LogLevel::debug, "debug message").has_value();
-                ok_info = log_with_timestamp(LogLevel::info, "info message").has_value();
-                ok_error = log_with_timestamp(LogLevel::error, "error message").has_value();
-                ok_irr = log_with_timestamp(LogLevel::irr, "irrecoverable message").has_value();
+                ok_debug = log_with_timestamp(LogLevel::DEBUG, "debug message").has_value();
+                ok_info = log_with_timestamp(LogLevel::INFO, "info message").has_value();
+                ok_error = log_with_timestamp(LogLevel::ERROR, "error message").has_value();
+                ok_irr = log_with_timestamp(LogLevel::IRR, "irrecoverable message").has_value();
         });
         REQUIRE(ok_debug);
         REQUIRE(ok_info);
@@ -271,8 +304,8 @@ TEST_CASE("custom writer captures stdout and stderr streams", "[logger]") {
         const WriterGuard guard;
         set_log_writer(&capture);
 
-        REQUIRE(log_with_timestamp(LogLevel::info, "test message").has_value());
-        REQUIRE(log_with_timestamp(LogLevel::error, "error message").has_value());
+        REQUIRE(log_with_timestamp(LogLevel::INFO, "test message").has_value());
+        REQUIRE(log_with_timestamp(LogLevel::ERROR, "error message").has_value());
 
         REQUIRE(!capture.out.empty());
         REQUIRE(!capture.err.empty());
@@ -291,14 +324,14 @@ TEST_CASE("filtered levels produce no output", "[logger]") {
         const WriterGuard guard;
         const MinLevelGuard levels;
         set_log_writer(&capture);
-        set_min_log_level(LogLevel::error);
+        set_min_log_level(LogLevel::ERROR);
 
-        REQUIRE(log_with_timestamp(LogLevel::debug, "filtered debug").has_value());
-        REQUIRE(log_with_timestamp(LogLevel::info, "filtered info").has_value());
+        REQUIRE(log_with_timestamp(LogLevel::DEBUG, "filtered debug").has_value());
+        REQUIRE(log_with_timestamp(LogLevel::INFO, "filtered info").has_value());
         REQUIRE(capture.out.empty());
         REQUIRE(capture.err.empty());
 
-        REQUIRE(log_with_timestamp(LogLevel::error, "visible error").has_value());
+        REQUIRE(log_with_timestamp(LogLevel::ERROR, "visible error").has_value());
         REQUIRE(!capture.err.empty());
         REQUIRE(capture.err.find("visible error") != std::string::npos);
 
@@ -314,11 +347,11 @@ TEST_CASE("plain line is [<timestamp>]:<LEVEL> <message>", "[logger]") {
         const WriterGuard guard;
         set_log_writer(&capture);
 
-        REQUIRE(log_with_timestamp(LogLevel::info, "hello world").has_value());
+        REQUIRE(log_with_timestamp(LogLevel::INFO, "hello world").has_value());
         REQUIRE(capture.out.find('\x1b') == std::string::npos);
         REQUIRE(timestamped_line(capture.out, "INFO hello world\n"));
 
-        REQUIRE(log_with_timestamp(LogLevel::error, "bad news").has_value());
+        REQUIRE(log_with_timestamp(LogLevel::ERROR, "bad news").has_value());
         REQUIRE(timestamped_line(capture.err, "ERROR bad news\n"));
 }
 
@@ -329,11 +362,11 @@ TEST_CASE("forced ANSI colors wrap the line", "[logger]") {
         const WriterGuard guard;
         set_log_writer(&capture);
 
-        REQUIRE(log_with_timestamp(LogLevel::error, "boom").has_value());
+        REQUIRE(log_with_timestamp(LogLevel::ERROR, "boom").has_value());
         REQUIRE(capture.err.starts_with("\x1b[32m["));
         REQUIRE(capture.err.ends_with("boom\n\x1b[0m"));
 
-        REQUIRE(log_with_timestamp(LogLevel::info, "glow").has_value());
+        REQUIRE(log_with_timestamp(LogLevel::INFO, "glow").has_value());
         REQUIRE(capture.out.starts_with("\x1b[32m["));
         REQUIRE(capture.out.ends_with("glow\n\x1b[0m"));
 }
@@ -381,13 +414,13 @@ TEST_CASE("overlong messages are truncated to the line buffer", "[logger]") {
 
         const std::string long_message(600, 'x');
         const auto result =
-            log_with_timestamp(LogLevel::info, SimpleStringView(long_message.data(), long_message.size()));
+            log_with_timestamp(LogLevel::INFO, SimpleStringView(long_message.data(), long_message.size()));
         REQUIRE(result.has_value());
         REQUIRE(capture.out.size() == 512);
         REQUIRE(capture.out.back() == '\n');
 }
 
-TEST_CASE("a full colored line reports buffer_too_small", "[logger]") {
+TEST_CASE("a full colored line truncates instead of failing", "[logger]") {
         const AnsiGuard ansi;
         set_ansi_colors(AnsiColors::enabled);
         CaptureWriter capture;
@@ -396,19 +429,20 @@ TEST_CASE("a full colored line reports buffer_too_small", "[logger]") {
 
         const std::string long_message(600, 'y');
         const auto result =
-            log_with_timestamp(LogLevel::info, SimpleStringView(long_message.data(), long_message.size()));
-        REQUIRE(!result.has_value());
-        REQUIRE(result.error().kind() == LogError::Kind::bufferTooSmall);
-        REQUIRE(capture.out.empty());
+            log_with_timestamp(LogLevel::INFO, SimpleStringView(long_message.data(), long_message.size()));
+        REQUIRE(result.has_value());
+        REQUIRE(capture.out.size() == 512);
+        REQUIRE(capture.out.starts_with("\x1b[32m["));
+        REQUIRE(capture.out.ends_with("y\n\x1b[0m"));
 }
 
 TEST_CASE("the default writer streams to the real stdio in a child", "[logger]") {
         const ChildResult child = run_child([] {
                 set_ansi_colors(AnsiColors::autoDetect);
-                set_min_log_level(LogLevel::debug);
-                if (!log_with_timestamp(LogLevel::info, "child stdout line").has_value())
+                set_min_log_level(LogLevel::DEBUG);
+                if (!log_with_timestamp(LogLevel::INFO, "child stdout line").has_value())
                         ::_exit(92);
-                if (!log_with_timestamp(LogLevel::error, "child stderr line").has_value())
+                if (!log_with_timestamp(LogLevel::ERROR, "child stderr line").has_value())
                         ::_exit(93);
                 if (!log_raw("child raw line\n").has_value())
                         ::_exit(94);
@@ -420,4 +454,119 @@ TEST_CASE("the default writer streams to the real stdio in a child", "[logger]")
         REQUIRE(child.output.find("child raw line") != std::string::npos);
         // Auto mode against a pipe: neither stream is a terminal, so no colors.
         REQUIRE(child.output.find('\x1b') == std::string::npos);
+}
+
+TEST_CASE("log calls succeed even when the installed writer fails", "[logger]") {
+        FailingWriter failing;
+        const WriterGuard guard;
+        set_log_writer(&failing);
+        const uint64_t dropped_before = log_dropped_count();
+        bool info_ok = false;
+        bool error_ok = false;
+        bool raw_ok = false;
+        with_silenced_streams([&] {
+                info_ok = log_with_timestamp(LogLevel::INFO, "info via console fallback").has_value();
+                error_ok = log_error("error via console fallback").has_value();
+                raw_ok = log_raw("raw via console fallback\n").has_value();
+        });
+        REQUIRE(info_ok);
+        REQUIRE(error_ok);
+        REQUIRE(raw_ok);
+        // The console fallback absorbed every failure, so nothing was dropped.
+        REQUIRE(log_dropped_count() == dropped_before);
+}
+
+TEST_CASE("the circular queue delivers messages in order", "[logger]") {
+        const AnsiGuard ansi;
+        set_ansi_colors(AnsiColors::disabled);
+        CaptureWriter capture;
+        const WriterGuard guard;
+        set_log_writer(&capture);
+
+        constexpr int count = 64; // twice log_queue_capacity, so the ring wraps around
+        for (int i = 0; i < count; ++i) {
+                const std::string text = "ordered " + std::to_string(i);
+                REQUIRE(log_with_timestamp(LogLevel::INFO, SimpleStringView(text.data(), text.size())).has_value());
+        }
+        size_t pos = 0;
+        for (int i = 0; i < count; ++i) {
+                const std::string text = "ordered " + std::to_string(i);
+                const size_t found = capture.out.find(text, pos);
+                REQUIRE(found != std::string::npos);
+                pos = found + text.size();
+        }
+        REQUIRE(std::count(capture.out.begin(), capture.out.end(), '\n') == count);
+}
+
+TEST_CASE("inline draining keeps the queue from overflowing", "[logger]") {
+        const AnsiGuard ansi;
+        set_ansi_colors(AnsiColors::disabled);
+        CaptureWriter capture;
+        const WriterGuard guard;
+        set_log_writer(&capture);
+
+        const uint64_t overflow_before = log_overflow_count();
+        for (int i = 0; i < 100; ++i)
+                REQUIRE(log_with_timestamp(LogLevel::INFO, "burst").has_value());
+        log_process_queue(); // explicit drain of an empty queue is a no-op
+        REQUIRE(log_overflow_count() == overflow_before);
+        REQUIRE(std::count(capture.out.begin(), capture.out.end(), '\n') == 100);
+}
+
+TEST_CASE("variadic overloads format only the user message", "[logger]") {
+        const AnsiGuard ansi;
+        set_ansi_colors(AnsiColors::disabled);
+        CaptureWriter capture;
+        const WriterGuard guard;
+        set_log_writer(&capture);
+
+        REQUIRE(log_info("answer={} base={:#x}", 42, 255).has_value());
+        REQUIRE(timestamped_line(capture.out, "INFO \x1b[1;94manswer=42 base=0xff\x1b[22;39m\n"));
+
+        REQUIRE(log_with_timestamp(LogLevel::ERROR, "code={}", 13).has_value());
+        REQUIRE(timestamped_line(capture.err, "ERROR code=13\n"));
+
+        REQUIRE(log_debug("items={} label={}", 2, "two").has_value());
+        REQUIRE(capture.out.find("]:DEBUG \x1b[96mitems=2 label=two\x1b[39m\n") != std::string::npos);
+
+        REQUIRE(log_warn("warn {}", 9).has_value());
+        REQUIRE(capture.err.find("\x1b[1;93mwarn 9\x1b[22;39m") != std::string::npos);
+
+        REQUIRE(log_success("done {}", "now").has_value());
+        REQUIRE(capture.out.find("\x1b[1;92mdone now\x1b[22;39m") != std::string::npos);
+
+        REQUIRE(log_irr("lost {}", 0).has_value());
+        REQUIRE(capture.err.find("]:IRR \x1b[7mlost 0\x1b[27m\n") != std::string::npos);
+
+        // A formatted message longer than the line buffer truncates but still logs.
+        capture.out.clear();
+        REQUIRE(log_info("{:0>600}", 1).has_value());
+        REQUIRE(capture.out.size() == 512);
+        REQUIRE(capture.out.back() == '\n');
+}
+
+TEST_CASE("concurrent producers never lose a message", "[logger]") {
+        const AnsiGuard ansi;
+        set_ansi_colors(AnsiColors::disabled);
+        LockedWriter locked;
+        const WriterGuard guard;
+        set_log_writer(&locked);
+
+        constexpr int thread_count = 4;
+        constexpr int per_thread = 64;
+        std::vector<std::thread> threads;
+        threads.reserve(thread_count);
+        for (int t = 0; t < thread_count; ++t) {
+                threads.emplace_back([t] {
+                        for (int i = 0; i < per_thread; ++i)
+                                (void)log_info("thread {} item {}", t, i);
+                });
+        }
+        for (std::thread& thread : threads)
+                thread.join();
+        // Process anything a producer could not drain after losing the token race.
+        log_process_queue();
+
+        const std::lock_guard<std::mutex> locked_guard(locked.lock);
+        REQUIRE(std::count(locked.out.begin(), locked.out.end(), '\n') == thread_count * per_thread);
 }

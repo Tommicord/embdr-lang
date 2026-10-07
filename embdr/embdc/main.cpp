@@ -1,66 +1,38 @@
+/* Copyright(c) 2026 Tommicord
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+ * documentation files (the “Software”), to deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the
+ * Software.
+ *
+ * THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+ * WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+ * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
+
 #include <cstdio>
+#include <cstdlib>
 
 import embdr.cxxstd.memoryAllocator;
+import embdr.cxxstd.logger;
+import embdr.cxxstd.sigHandler;
 import embdr.cxxstd.unwind;
-
 using namespace embdr;
 
-#if defined(__GNUC__) || defined(__clang__)
-#        define EMBDR_TEST_NOINLINE __attribute__((noinline))
-#elif defined(_MSC_VER)
-#        define EMBDR_TEST_NOINLINE __declspec(noinline)
-#else
-#        define EMBDR_TEST_NOINLINE
-#endif
-
-namespace {
-
-int g_failures = 0;
-
-void check(const bool condition, const char* what) {
-        if (!condition) {
-                std::printf("FAIL: %s\n", what);
-                ++g_failures;
+int main()
+{
+    cxxstd::set_min_log_level(cxxstd::LogLevel::INFO);
+    if (!cxxstd::sig_install())
+        {
+            cxxstd::log_error("embdc: Signal handler initialization failed");
+            return EXIT_FAILURE;
         }
-}
-
-EMBDR_TEST_NOINLINE size_t level3(cxxstd::UnwindFrame* frames, const size_t cap) {
-        return cxxstd::unwind_capture_frames(frames, cap);
-}
-
-EMBDR_TEST_NOINLINE size_t level2(cxxstd::UnwindFrame* frames, const size_t cap) { return level3(frames, cap); }
-
-EMBDR_TEST_NOINLINE size_t level1(cxxstd::UnwindFrame* frames, const size_t cap) { return level2(frames, cap); }
-
-} // namespace
-
-int main() {
-        check(!cxxstd::unwind_in_handler(), "guard starts clear");
-        check(cxxstd::unwind_try_enter(), "guard acquisition succeeds");
-        check(cxxstd::unwind_in_handler(), "guard set after enter");
-        check(!cxxstd::unwind_try_enter(), "guard rejects reentry");
-        cxxstd::unwind_leave();
-        check(!cxxstd::unwind_in_handler(), "guard clear after leave");
-
-        cxxstd::UnwindFrame frames[cxxstd::unwind_max_frames] = {};
-        const size_t count = level1(frames, cxxstd::unwind_max_frames);
-        std::printf("captured %zu frames\n", count);
-        check(count >= 3, "at least three frames captured");
-        for (size_t i = 0; i < count; ++i) {
-                check(frames[i]._M_ip != 0, "frame ip nonzero");
-                check(frames[i]._M_sp != 0, "frame sp nonzero");
-                if (i > 0)
-                        check(frames[i]._M_sp > frames[i - 1]._M_sp, "stack pointer grows toward caller");
+    else
+        {
+            cxxstd::log_debug("embdc: Signal handler initialized");
         }
-        if (count > 0)
-                check(frames[0]._M_module_base.has_value(), "module base resolved for innermost frame");
-
-        size_t traced = 0;
-        cxxstd::unwind_trace([&traced](const cxxstd::UnwindFrame&, size_t) noexcept { ++traced; });
-        std::printf("traced %zu frames\n", traced);
-        check(traced >= 3, "trace yields multiple frames");
-
-        if (g_failures == 0)
-                std::printf("unwinder smoke test: OK\n");
-        return g_failures == 0 ? 0 : 1;
+    return EXIT_SUCCESS;
 }

@@ -31,7 +31,7 @@ set(CXXSTD_SOURCES
   embdr/cxxstd/io.cppm
   embdr/cxxstd/timeCore.cppm
   embdr/cxxstd/timeUtil.cppm
-  embdr/cxxstd/consoleUtil.cppm
+  embdr/cxxstd/console.cppm
   embdr/cxxstd/logger.cppm
 )
 set(CXXSTD_MODULES

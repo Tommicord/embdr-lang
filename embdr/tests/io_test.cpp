@@ -42,47 +42,47 @@ TEST_CASE("SeekFrom variants compare equal", "[io]") {
 }
 
 TEST_CASE("ErrorKind equality, display and debug strings", "[io]") {
-        REQUIRE(ErrorKind::other == ErrorKind::other);
-        REQUIRE(ErrorKind::notFound == ErrorKind::notFound);
-        REQUIRE(ErrorKind::other != ErrorKind::notFound);
-        REQUIRE(debug_str(ErrorKind::notFound) == "NotFound");
-        REQUIRE(debug_str(ErrorKind::permissionDenied) == "PermissionDenied");
-        REQUIRE(as_str(ErrorKind::permissionDenied) == "permission denied");
-        REQUIRE(as_str(ErrorKind::notFound) == "entity not found");
-        REQUIRE(as_str(ErrorKind::unexpectedEof) == "unexpected end of file");
+        REQUIRE(ErrorKind::OTHER == ErrorKind::OTHER);
+        REQUIRE(ErrorKind::NOT_FOUND == ErrorKind::NOT_FOUND);
+        REQUIRE(ErrorKind::OTHER != ErrorKind::NOT_FOUND);
+        REQUIRE(debug_str(ErrorKind::NOT_FOUND) == "NotFound");
+        REQUIRE(debug_str(ErrorKind::PERMISSION_DENIED) == "PermissionDenied");
+        REQUIRE(as_str(ErrorKind::PERMISSION_DENIED) == "permission denied");
+        REQUIRE(as_str(ErrorKind::NOT_FOUND) == "entity not found");
+        REQUIRE(as_str(ErrorKind::UNEXPECTED_EOF) == "unexpected end of file");
         REQUIRE(as_str(ErrorKind::writeZero) == "write zero");
 }
 
 TEST_CASE("Error carries a kind and an optional message", "[io]") {
-        const IoError simple = IoError::from_kind(ErrorKind::notFound);
-        REQUIRE(simple.kind() == ErrorKind::notFound);
+        const IoError simple = IoError::from_kind(ErrorKind::NOT_FOUND);
+        REQUIRE(simple.kind() == ErrorKind::NOT_FOUND);
         REQUIRE(simple.message() == nullptr);
         REQUIRE(simple.what() == "entity not found");
 
         const IoError custom = IoError::other("oh no!");
-        REQUIRE(custom.kind() == ErrorKind::other);
+        REQUIRE(custom.kind() == ErrorKind::OTHER);
         REQUIRE(custom.message() == std::string_view("oh no!"));
         REQUIRE(custom.what() == "oh no!");
 }
 
 TEST_CASE("ReadExactError, SliceWriteError and WriteFmtError wrappers", "[io]") {
-        const auto converted = ReadExactError<ErrorKind>::from(ErrorKind::timedOut);
+        const auto converted = ReadExactError<ErrorKind>::from(ErrorKind::TIMED_OUT);
         REQUIRE(converted.is_other());
         REQUIRE(!converted.is_unexpected_eof());
-        REQUIRE(converted.error() == ErrorKind::timedOut);
+        REQUIRE(converted.error() == ErrorKind::TIMED_OUT);
 
         const ReadExactError<ErrorKind> eof = ReadExactError<ErrorKind>::unexpected_eof();
         REQUIRE(eof.is_unexpected_eof());
         REQUIRE(!eof.is_other());
         REQUIRE(eof.what() == "UnexpectedEof");
 
-        const SliceWriteError slice = SliceWriteError::full;
-        REQUIRE(slice == SliceWriteError::full);
+        const SliceWriteError slice = SliceWriteError::FULL;
+        REQUIRE(slice == SliceWriteError::FULL);
         REQUIRE(as_str(slice) == "Full");
 
-        const auto fmt_other = WriteFmtError<ErrorKind>::from(ErrorKind::other);
+        const auto fmt_other = WriteFmtError<ErrorKind>::from(ErrorKind::OTHER);
         REQUIRE(fmt_other.is_other());
-        REQUIRE(fmt_other.error() == ErrorKind::other);
+        REQUIRE(fmt_other.error() == ErrorKind::OTHER);
 
         const WriteFmtError<ErrorKind> fmt_failure = WriteFmtError<ErrorKind>::fmt_error();
         REQUIRE(fmt_failure.is_fmt_error());
@@ -186,7 +186,7 @@ TEST_CASE("Cursor write_all reports a full slice", "[io][cursor]") {
         cursor.set_position(5);
         const auto full = write_all(cursor, std::string_view(" World!"));
         REQUIRE(!full.has_value());
-        REQUIRE(full.error() == SliceWriteError::full);
+        REQUIRE(full.error() == SliceWriteError::FULL);
 }
 
 TEST_CASE("Cursor write into a vector", "[io][cursor]") {
@@ -361,7 +361,7 @@ TEST_CASE("write_fmt writes a formatted payload", "[io][cursor]") {
         const auto failed = write_fmt(empty_cursor, std::string_view("Test"));
         REQUIRE(!failed.has_value());
         REQUIRE(failed.error().is_other());
-        REQUIRE(failed.error().error() == SliceWriteError::full);
+        REQUIRE(failed.error().error() == SliceWriteError::FULL);
 }
 
 TEST_CASE("is_terminal matches isatty", "[io]") {
@@ -394,15 +394,15 @@ TEST_CASE("stdout write smoke", "[io]") {
 }
 
 TEST_CASE("errno mapping", "[io]") {
-        REQUIRE(error_kind_from_errno(EBADF) == ErrorKind::notFound);
-        REQUIRE(error_kind_from_errno(EPIPE) == ErrorKind::brokenPipe);
-        REQUIRE(error_kind_from_errno(EAGAIN) == ErrorKind::timedOut);
+        REQUIRE(error_kind_from_errno(EBADF) == ErrorKind::NOT_FOUND);
+        REQUIRE(error_kind_from_errno(EPIPE) == ErrorKind::BROKEN_PIPE);
+        REQUIRE(error_kind_from_errno(EAGAIN) == ErrorKind::TIMED_OUT);
 #if defined(EWOULDBLOCK) && (EWOULDBLOCK != EAGAIN)
-        REQUIRE(error_kind_from_errno(EWOULDBLOCK) == ErrorKind::timedOut);
+        REQUIRE(error_kind_from_errno(EWOULDBLOCK) == ErrorKind::TIMED_OUT);
 #endif
-        REQUIRE(error_kind_from_errno(EINTR) == ErrorKind::interrupted);
-        REQUIRE(error_kind_from_errno(ENOMEM) == ErrorKind::outOfMemory);
-        REQUIRE(error_kind_from_errno(9999) == ErrorKind::other);
+        REQUIRE(error_kind_from_errno(EINTR) == ErrorKind::INTERRUPTED);
+        REQUIRE(error_kind_from_errno(ENOMEM) == ErrorKind::OUT_OF_MEMORY);
+        REQUIRE(error_kind_from_errno(9999) == ErrorKind::OTHER);
 }
 
 TEST_CASE("standard stream handles create locks", "[io]") {
