@@ -590,6 +590,32 @@ function ::is_ip_addr(ip_str: u8string) -> bool {
 // Patterns are compile-time constants and can be bound to variables:
 let my_pattern = p"gr[ae]y";   // Maps to macro: std::<Pattern>
 
+// The supported pattern subset is RE2-style — this is a deliberate design
+// choice, not a limitation to be worked around. Backreferences (\1) and
+// lookaround ((?=...) (?<=...)) are NOT supported: they make the language
+// non-regular and would force a backtracking engine, destroying the linear
+// worst-case guarantee that makes p"..." safe to embed. Supported:
+//
+//   literals          a  café            (Unicode scalars, matched as code points)
+//   dot               .                  (any code point except '\n')
+//   class             [abc] [a-z] [^..]  (ranges, negation, escapes inside)
+//   perl classes      \d \D \w \W \s \S
+//   escapes           \n \r \t \\ \. \* \+ \? \( \) \[ \] \{ \} \| \^ \$ \/
+//                     \xHH  \u{HHHHH}
+//   anchors           ^  $               (start / end of input, zero-width)
+//   groups            (...)  (?:...)      (non-capturing; captures are the
+//                                         parser's job, not the pattern's)
+//   alternation       a|b|c
+//   quantifiers       *  +  ?  {n}  {n,}  {n,m}
+//   non-greedy        *? +? ?? {n,m}?     (SPLIT priority encodes greediness)
+//
+// Implementation (embdr/lex/pattern.cppm): compile_pattern() lowers the pattern
+// to a Thompson NFA; matches() runs a Pike-VM simulation. Each input position
+// advances every live state in lock step and a per-position "seen" stamp
+// ensures no state is entered twice, so matching is O(len(text) x len(program))
+// — linear in the input, immune to ReDoS. The program, class table and range
+// table are fixed-capacity value types (no heap, no recursion).
+
 ## 20. Static closures
 
 // A closure can live in static storage; callable from anywhere after
@@ -727,5 +753,24 @@ packed struct ::my_packed_struct {
 //     literals take integer suffixes only.
 //   - String prefixes: u8" u16" u32" r" p" — plain " == u8string.
 //     p"..." is a raw compile-time pattern literal (see §19).
+//
+// Literals:
+//   Integer   42  0xFF  0o777  0b1010  1_000_000  100int128  0xFFint16
+//   Float     3.14  6.02e23  1e-5  3.14float64  1.2float16
+//             (fraction needs a digit after '.': "1..2" is 1 .. 2, a range;
+//              a '.' on a hex/octal/binary literal is an error)
+//   String    "hi"  u8"hi"  u16"hi"  u32"hi"  r"raw\n"  p"pat"
+//   Char      'a'  '\n'  '\x41'  '\u{1F600}'  '\''
+//   Escapes   \n \r \t \0 \\ \' \" \a \b \f \v  \xHH (2 hex)  \u{1..6 hex, scalar}
+//   Separators '_' must sit between digits ("1_000" ok, "1_", "1__0", "0x_1" error)
+//   Suffixes  integer suffixes on any base; float suffixes on decimal only.
+//             "u8" is a STRING prefix, never a type suffix — "1u8" is an error.
+//
+// The lexer (embdr/lex/lexer.cppm) is forward-only, allocation-free and
+// constexpr. Every token carries TokenFlags::START_OF_LINE / LEADING_SPACE (the
+// GCC libcpp BOL / PREV_WHITE bits) so the parser can disambiguate '<'/'>' and
+// '#' attributes. Every error consumes at least one byte, so a driver can keep
+// calling next() to resynchronize. A UTF-8 BOM at offset 0 is skipped; invalid
+// UTF-8 inside a literal is rejected.
 //   - 'u8'/'u16' are STRING prefixes only; integer types are always
 //     spelled int*/uint* (never u8, u16, i32...).
