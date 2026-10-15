@@ -57,12 +57,24 @@ set(CXXSTD_SOURCES
   embdr/cxxstd/timeCore.cppm
   embdr/cxxstd/timeUtil.cppm
   embdr/cxxstd/logger.cppm
-  embdr/lex/charinfo.cppm
-  embdr/lex/token.cppm
-  embdr/lex/literal.cppm
-  embdr/lex/lexer.cppm
-  embdr/lex/delimiter.cppm
-  embdr/lex/pattern.cppm
+)
+set(LIB_SOURCES
+  embdr/lib/lex/charInfo.cppm
+  embdr/lib/lex/basicToken.cppm
+  embdr/lib/lex/constructibleLiteral.cppm
+  embdr/lib/lex/lexer.cppm
+  embdr/lib/lex/delimiter.cppm
+  embdr/lib/lex/constructiblePattern.cppm
+  embdr/lib/parse/ast.cppm
+  embdr/lib/parse/parser.cppm
+  embdr/lib/parse/parserType.cppm
+  embdr/lib/parse/parserTemplate.cppm
+  embdr/lib/parse/parserTentative.cppm
+  embdr/lib/parse/parserExpr.cppm
+  embdr/lib/parse/parserPattern.cppm
+  embdr/lib/parse/parserStmt.cppm
+  embdr/lib/parse/parserDecl.cppm
+  embdr/lib/parse/parseAst.cppm
 )
 set(CXXSTD_MODULES
   embdr.cxxstd.memoryIterator
@@ -92,7 +104,7 @@ target_sources(
   embdc-compiler
   PUBLIC
   FILE_SET CXX_MODULES TYPE CXX_MODULES FILES
-  ${CXXSTD_SOURCES}
+  ${CXXSTD_SOURCES} ${LIB_SOURCES}
 )
 
 target_include_directories(embdc-compiler PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
@@ -136,10 +148,11 @@ if (EMBDR_BUILD_TESTS)
     embdr/tests/logger_test.cpp
     embdr/tests/stringFormat_test.cpp
     embdr/tests/token_test.cpp
-    embdr/tests/charinfo_test.cpp
-    embdr/tests/literal_test.cpp
+    embdr/tests/charInfo.cpp
+    embdr/tests/constructibleLiteral.cpp
     embdr/tests/lexer_test.cpp
     embdr/tests/delimiter_test.cpp
+    embdr/tests/parser_test.cpp
     embdr/tests/pattern_test.cpp
   )
   target_link_libraries(embdr-tests PRIVATE embdc-compiler Catch2::Catch2WithMain)

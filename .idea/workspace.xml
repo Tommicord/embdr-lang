@@ -4,9 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="BackendCodeEditorMiscSettings">
-    <option name="/Default/Environment/Hierarchy/GeneratedFilesCacheKey/Timestamp/@EntryValue" value="6" type="long" />
+    <option name="/Default/Environment/Hierarchy/GeneratedFilesCacheKey/Timestamp/@EntryValue" value="4" type="long" />
     <option name="/Default/Housekeeping/FeatureSuggestion/FeatureSuggestionManager/DisabledSuggesters/=SwitchToGoToActionSuggester/@EntryIndexedValue" value="true" type="bool" />
     <option name="/Default/Housekeeping/LiveTemplatesHousekeeping/HotspotSessionHintIsShown/@EntryValue" value="true" type="bool" />
+    <option name="/Default/Housekeeping/RefactoringsMru/RenameRefactoring/DoSearchForTextInStrings/@EntryValue" value="true" type="bool" />
   </component>
   <component name="CMakePresetLoader">{
   &quot;useNewFormat&quot;: true
@@ -40,19 +41,52 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5fd22608-2df2-4ed4-bf0a-9c20dd852fbf" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/embdr/lib/lex/basicToken.cppm" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/embdr/lib/lex/charInfo.cppm" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/embdr/lib/lex/constructibleLiteral.cppm" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/embdr/lib/lex/constructiblePattern.cppm" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/embdr/lib/lex/delimiter.cppm" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/embdr/lib/lex/lexer.cppm" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/embdr/tests/charInfo.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/embdr/tests/constructibleLiteral.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.clang-format" beforeDir="false" afterPath="$PROJECT_DIR$/.clang-format" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/AGENTS.md" beforeDir="false" afterPath="$PROJECT_DIR$/AGENTS.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/embdr/cxxstd/console.cppm" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/embdr/cxxstd/io.cppm" beforeDir="false" afterPath="$PROJECT_DIR$/embdr/cxxstd/io.cppm" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/embdr/cxxstd/logger.cppm" beforeDir="false" afterPath="$PROJECT_DIR$/embdr/cxxstd/logger.cppm" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/embdr/cxxstd/memoryAllocator.cppm" beforeDir="false" afterPath="$PROJECT_DIR$/embdr/cxxstd/memoryAllocator.cppm" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/embdr/cxxstd/memoryIterator.cppm" beforeDir="false" afterPath="$PROJECT_DIR$/embdr/cxxstd/memoryIterator.cppm" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/embdr/cxxstd/memoryMaybe.cppm" beforeDir="false" afterPath="$PROJECT_DIR$/embdr/cxxstd/memoryMaybe.cppm" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/embdr/cxxstd/sigHandler.cppm" beforeDir="false" afterPath="$PROJECT_DIR$/embdr/cxxstd/sigHandler.cppm" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/embdr/cxxstd/stringFormat.cppm" beforeDir="false" afterPath="$PROJECT_DIR$/embdr/cxxstd/stringFormat.cppm" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/embdr/cxxstd/stringView.cppm" beforeDir="false" afterPath="$PROJECT_DIR$/embdr/cxxstd/stringView.cppm" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/embdr/cxxstd/stringifyFloat.cppm" beforeDir="false" afterPath="$PROJECT_DIR$/embdr/cxxstd/stringifyFloat.cppm" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/embdr/cxxstd/stringifyNumber.cppm" beforeDir="false" afterPath="$PROJECT_DIR$/embdr/cxxstd/stringifyNumber.cppm" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/embdr/cxxstd/timeCore.cppm" beforeDir="false" afterPath="$PROJECT_DIR$/embdr/cxxstd/timeCore.cppm" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/embdr/cxxstd/timeUtil.cppm" beforeDir="false" afterPath="$PROJECT_DIR$/embdr/cxxstd/timeUtil.cppm" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/embdr/cxxstd/unwind.cppm" beforeDir="false" afterPath="$PROJECT_DIR$/embdr/cxxstd/unwind.cppm" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/embdr/cxxstd/unwindPrettify.cppm" beforeDir="false" afterPath="$PROJECT_DIR$/embdr/cxxstd/unwindPrettify.cppm" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/embdr/cxxstd/utfEncode.cppm" beforeDir="false" afterPath="$PROJECT_DIR$/embdr/cxxstd/utfEncode.cppm" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/embdr/tests/consoleUtil_test.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/embdr/embdc/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/embdr/embdc/main.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/embdr/lex/charinfo.cppm" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/embdr/lex/delimiter.cppm" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/embdr/lex/lexer.cppm" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/embdr/lex/literal.cppm" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/embdr/lex/pattern.cppm" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/embdr/lex/token.cppm" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/embdr/tests/charinfo_test.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/embdr/tests/delimiter_test.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/embdr/tests/delimiter_test.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/embdr/tests/io_test.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/embdr/tests/io_test.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/embdr/tests/lexer_test.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/embdr/tests/lexer_test.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/embdr/tests/literal_test.cpp" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/embdr/tests/logger_test.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/embdr/tests/logger_test.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/embdr/tests/memoryAllocator_test.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/embdr/tests/memoryAllocator_test.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/embdr/tests/pattern_test.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/embdr/tests/pattern_test.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/embdr/tests/timeUtil_test.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/embdr/tests/timeUtil_test.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/embdr/tests/token_test.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/embdr/tests/token_test.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/embdr/tests/unwind_test.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/embdr/tests/unwind_test.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/syntax.txt" beforeDir="false" afterPath="$PROJECT_DIR$/syntax.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -108,7 +142,7 @@
     &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
     &quot;ctest.advertisement.all.test.configuration.is.created&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/tommicord/Documentos/Proyectos/test&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/tommicord/Documentos/test2&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.jshint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
@@ -136,6 +170,11 @@
       </method>
     </configuration>
     <configuration name="Catch2WithMain" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="embedrite" TARGET_NAME="Catch2WithMain" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -170,9 +209,9 @@
       <item itemvalue="CMake Application.Catch2WithMain" />
       <item itemvalue="CMake Application.Catch2" />
       <item itemvalue="CMake Application.embdc-compiler" />
-      <item itemvalue="CMake Application.embdc" />
       <item itemvalue="CMake Application.embdr-tests" />
       <item itemvalue="CMake Application.libembdc" />
+      <item itemvalue="CMake Application.embdc" />
       <item itemvalue="CTest Application.All CTest" />
     </list>
     <recent_temporary>

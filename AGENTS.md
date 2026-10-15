@@ -12,7 +12,7 @@ wins.
 
 - **embedrite**: experimental systems language for deeply embedded targets.
 - **`embdc/`**: the compiler driver (C++26, C++20 modules) — front end being
-  bootstrapped (`embdr/lex/*`).
+  bootstrapped (`embdr/lib/lex`).
 - **`embdr/cxxstd/`**: the runtime library that exists today and is the bulk of
   the code.
 - **`embdr/tests/`**: Catch2 tests.
