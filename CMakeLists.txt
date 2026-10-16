@@ -48,6 +48,7 @@ set(CXXSTD_SOURCES
   embdr/cxxstd/unwindPrettify.cppm
   embdr/cxxstd/sigHandler.cppm
   embdr/cxxstd/memoryMaybe.cppm
+  embdr/cxxstd/typedValue.cppm
   embdr/cxxstd/stringFormat.cppm
   embdr/cxxstd/stringifyFloat.cppm
   embdr/cxxstd/stringifyNumber.cppm
@@ -84,6 +85,7 @@ set(CXXSTD_MODULES
   embdr.cxxstd.memoryIterator
   embdr.cxxstd.memoryAllocator
   embdr.cxxstd.memoryMaybe
+  embdr.cxxstd.typedValue
   embdr.lex.charinfo
   embdr.lex.token
   embdr.lex.literal
@@ -156,6 +158,7 @@ if (EMBDR_BUILD_TESTS)
     embdr/tests/constructibleLiteral.cpp
     embdr/tests/lexer_test.cpp
     embdr/tests/delimiter_test.cpp
+    embdr/tests/typedValue_test.cpp
     embdr/tests/parser_test.cpp
     embdr/tests/pattern_test.cpp
     embdr/tests/ast_probe.cpp

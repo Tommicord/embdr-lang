@@ -29,15 +29,37 @@ module;
 
 export module embdr.cxxstd.timeCore;
 import embdr.cxxstd.memoryMaybe;
+import embdr.cxxstd.typedValue;
 
 namespace embdr::cxxstd
 {
+  // Tag type separating clock identifiers from every other integer domain. Never defined:
+  // it exists only so that TypedValue instantiations sharing the same representation
+  // cannot be confused with each other.
+  export struct ClockIdTag
+  {
+  };
+
+  // A clock identifier (the glibc/POSIX `clockid_t`, an `int` under the hood).
+  //
+  // The raw `int` interface this replaces accepted *any* integer at `clock_gettime`'s
+  // signature; now the only values that reach the syscall are ones built through an
+  // explicit `ClockId` construction, and clock ids cannot be mixed with line counts,
+  // byte sizes, error codes or any other int domain.
+  //
+  // Platform-specific ids stay constructible (`static_cast<ClockId>`-style explicit
+  // construction) so unsupported-clock behavior remains exercisable.
+  export using ClockId = TypedValue<int, ClockIdTag>;
+
   // Resolves the `clock_gettime` syscall via libc (module-internal, mirrors the
   // private Rust `call_clock_gettime` helper).
   [[nodiscard]] inline int
-  call_clock_gettime (const int clock_id, ::timespec* ts) noexcept
+  call_clock_gettime (const ClockId clock_id, ::timespec* ts) noexcept
   {
-    return ::clock_gettime (static_cast<clockid_t> (clock_id), ts);
+    // Single conversion point where a typed clock id crosses the C ABI boundary:
+    // `clock_gettime` accepts only the raw scalar. `clockid_t` is an int on every
+    // target this code builds for, so the narrowing is a no-op.
+    return ::clock_gettime (static_cast<clockid_t> (clock_id.get ()), ts);
   }
 
   // The `timespec` structure holding seconds and nanoseconds.
@@ -169,11 +191,11 @@ namespace embdr::cxxstd
   export struct SystemTime
   {
     // Clock ID for `CLOCK_MONOTONIC`: monotonically increasing time.
-    static constexpr int CLOCK_MONOTONIC = 1;
+    static constexpr ClockId CLOCK_MONOTONIC{1};
     // Clock ID for `CLOCK_REALTIME`: wall-clock time.
-    static constexpr int CLOCK_REALTIME = 0;
+    static constexpr ClockId CLOCK_REALTIME{0};
     // Clock ID for `CLOCK_MONOTONIC_RAW`: monotonic time not subject to NTP corrections.
-    static constexpr int CLOCK_MONOTONIC_RAW = 4;
+    static constexpr ClockId CLOCK_MONOTONIC_RAW{4};
 
     // Returns the current monotonic time (equivalent to now_with_clock(CLOCK_MONOTONIC)).
     [[nodiscard]] static Maybe<TimeVal, TimeError::Kind>
@@ -191,7 +213,7 @@ namespace embdr::cxxstd
 
     // Returns the current time for the given clock. Use `now()` for CLOCK_MONOTONIC.
     [[nodiscard]] static Maybe<TimeVal, TimeError::Kind>
-    now_with_clock (const int clock_id) noexcept
+    now_with_clock (const ClockId clock_id) noexcept
     {
       TimeError error{};
       return now_with_clock (clock_id, error);
@@ -199,7 +221,7 @@ namespace embdr::cxxstd
 
     // Error-out overload of `now_with_clock()`; on failure `error` describes the fault.
     [[nodiscard]] static Maybe<TimeVal, TimeError::Kind>
-    now_with_clock (const int clock_id, TimeError& error) noexcept
+    now_with_clock (const ClockId clock_id, TimeError& error) noexcept
     {
       ::timespec ts{};
       const int rc = call_clock_gettime (clock_id, &ts);

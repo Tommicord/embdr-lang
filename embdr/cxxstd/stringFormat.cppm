@@ -171,9 +171,9 @@ namespace embdr::cxxstd
   constexpr void
   text_spec (FormatSpec<CharTy>& spec) noexcept
   {
-    if (has_flag (spec.flags, SpecFlag::zero_pad) && spec._M_align == SpecAlign::none)
+    if (has_flag (spec._M_flags, SpecFlag::zero_pad) && spec._M_align == SpecAlign::none)
       {
-        spec.fill = static_cast<CharTy> ('0');
+        spec._M_fill = static_cast<CharTy> ('0');
         spec._M_align = SpecAlign::right;
       }
   }
@@ -192,7 +192,7 @@ namespace embdr::cxxstd
         if (sign_len != 0)
           sink.put (sign_ch);
       };
-    if (has_flag (spec.flags, SpecFlag::zero_pad) && spec._M_align == SpecAlign::none)
+    if (has_flag (spec._M_flags, SpecFlag::zero_pad) && spec._M_align == SpecAlign::none)
       {
         emit_sign ();
         emit_prefix ();
@@ -206,20 +206,20 @@ namespace embdr::cxxstd
         emit_sign ();
         emit_prefix ();
         emit_body ();
-        sink.fill (pad, spec.fill);
+        sink.fill (pad, spec._M_fill);
       }
     else if (align == SpecAlign::center)
       {
         const unsigned int left_pad = pad / 2;
-        sink.fill (left_pad, spec.fill);
+        sink.fill (left_pad, spec._M_fill);
         emit_sign ();
         emit_prefix ();
         emit_body ();
-        sink.fill (pad - left_pad, spec.fill);
+        sink.fill (pad - left_pad, spec._M_fill);
       }
     else
       {
-        sink.fill (pad, spec.fill);
+        sink.fill (pad, spec._M_fill);
         emit_sign ();
         emit_prefix ();
         emit_body ();
@@ -279,7 +279,7 @@ namespace embdr::cxxstd
       return true;
     if (i + 1 < end && is_align (rd[i + 1]))
       {
-        spec.fill = rd[i];
+        spec._M_fill = rd[i];
         spec._M_align = align_of (rd[i + 1]);
         i += 2;
       }
@@ -295,12 +295,12 @@ namespace embdr::cxxstd
       }
     if (i < end && rd[i] == static_cast<CharTy> ('#'))
       {
-        spec.flags = spec.flags | SpecFlag::alt;
+        spec._M_flags = spec._M_flags | SpecFlag::alt;
         i += 1;
       }
     if (i < end && rd[i] == static_cast<CharTy> ('0'))
       {
-        spec.flags = spec.flags | SpecFlag::zero_pad;
+        spec._M_flags = spec._M_flags | SpecFlag::zero_pad;
         i += 1;
       }
     if (i < end && is_digit (rd[i]))
@@ -333,7 +333,7 @@ namespace embdr::cxxstd
       }
     if (i < end)
       {
-        spec.type = rd[i];
+        spec._M_type = rd[i];
         i += 1;
       }
     return i == end;
@@ -655,7 +655,7 @@ namespace embdr::cxxstd
   constexpr void
   format_integer (FormatSink<CharTy>& sink, const T value, const FormatSpec<CharTy>& spec) noexcept
   {
-    const CharTy type = spec.type;
+    const CharTy type = spec._M_type;
     if (type == static_cast<CharTy> ('c'))
       {
         emit_char (sink, static_cast<CharTy> (value), spec);
@@ -719,8 +719,7 @@ namespace embdr::cxxstd
       body_len = static_cast<unsigned int> (spec._M_precision);
     CharTy prefix[2];
     unsigned int prefix_len = 0;
-    const bool with_prefix = has_flag (spec.flags, SpecFlag::alt) || type == static_cast<CharTy> ('B');
-    if (with_prefix)
+    if (has_flag (spec._M_flags, SpecFlag::alt) || type == static_cast<CharTy> ('B'))
       {
         if (base == NumberBase::hexadecimal)
           {
@@ -763,7 +762,7 @@ namespace embdr::cxxstd
   constexpr void
   format_floating (FormatSink<CharTy>& sink, const T value, const FormatSpec<CharTy>& spec) noexcept
   {
-    const CharTy type = spec.type;
+    const CharTy type = spec._M_type;
     if (!is_floating_type (type))
       {
         sink._M_stopped = true;
@@ -779,7 +778,7 @@ namespace embdr::cxxstd
       raw_len = dtoa (raw, static_cast<double> (value));
     const FloatRepr repr = parse_float_repr (raw, static_cast<unsigned int> (raw_len));
     const CharTy sign_ch = pick_sign (repr.negative, spec);
-    const bool alt = has_flag (spec.flags, SpecFlag::alt);
+    const bool alt = has_flag (spec._M_flags, SpecFlag::alt);
     if (repr.kind != FloatKind::number)
       {
         const char* text = repr.kind == FloatKind::infinity ? (upper ? "INF" : "inf") : (upper ? "NAN" : "nan");
@@ -870,7 +869,7 @@ namespace embdr::cxxstd
     using U = std::remove_cvref_t<T>;
     if constexpr (std::is_same_v<U, bool>)
       {
-        const CharTy type = spec.type;
+        const CharTy type = spec._M_type;
         if (type == static_cast<CharTy> ('\0') || type == static_cast<CharTy> ('s'))
           {
             emit_text (sink, value ? "true" : "false", spec, SpecAlign::left);
@@ -902,7 +901,7 @@ namespace embdr::cxxstd
       }
     else if constexpr (std::is_same_v<U, CharTy>)
       {
-        const CharTy type = spec.type;
+        const CharTy type = spec._M_type;
         if (type == static_cast<CharTy> ('\0') || type == static_cast<CharTy> ('s')
             || type == static_cast<CharTy> ('c'))
           {
@@ -919,14 +918,14 @@ namespace embdr::cxxstd
       }
     else if constexpr (std::is_integral_v<U>)
       {
-        if (is_integer_type (spec.type))
+        if (is_integer_type (spec._M_type))
           format_integer (sink, value, spec);
         else
           sink._M_stopped = true;
       }
     else if constexpr (requires { BasicStringView<CharTy>{value}; })
       {
-        if (spec.type == static_cast<CharTy> ('\0') || spec.type == static_cast<CharTy> ('s'))
+        if (spec._M_type == static_cast<CharTy> ('\0') || spec._M_type == static_cast<CharTy> ('s'))
           {
             if constexpr (std::is_pointer_v<U>)
               {
@@ -945,7 +944,7 @@ namespace embdr::cxxstd
       }
     else if constexpr (std::is_pointer_v<U>)
       {
-        if (spec.type == static_cast<CharTy> ('\0') || spec.type == static_cast<CharTy> ('p'))
+        if (spec._M_type == static_cast<CharTy> ('\0') || spec._M_type == static_cast<CharTy> ('p'))
           format_pointer (sink, value, spec);
         else
           sink._M_stopped = true;

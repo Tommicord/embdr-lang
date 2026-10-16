@@ -33,23 +33,6 @@ namespace embdr::lex
 
   // Compile-time constructible matching (syntax.txt §19).
   //
-  // A p"..." literal is turned by compile_pattern() into a Thompson NFA and run
-  // by a Pike-VM simulation — the architecture of Google RE2 and of Russ Cox's
-  // linear-time matching articles. The reasons we hand-roll this rather than
-  // embed a backtracking engine:
-  //
-  //   - NO backtracking. Each input position advances every live state in lock
-  //     step, and a per-position "seen" stamp guarantees a program counter is
-  //     entered at most once per character. Worst case is O(len(text) *
-  //     len(program)): linear in the input, so (a+)+$ cannot blow up (no ReDoS).
-  //   - NO recursion, NO heap. Compilation uses a bounded group stack and
-  //     patch list; matching uses fixed thread stacks and a fixed seen[] array —
-  //     all template-parameterized capacities and value types. Satisfies
-  //     CODE_QUALITY §1.3 and keeps stack usage predictable on embedded targets.
-  //   - CONSTEXPR end to end: §19 makes p"..." a compile-time constant, so
-  //     compile_pattern() runs in constant evaluation and the program lands in
-  //     .rodata.
-  //
   // Deliberately unsupported — this is exactly what keeps matching linear and
   // the automaton small: backreferences and lookaround. syntax.txt §19 defines
   // p"..." as RE2-style, so their absence is by design, not a gap.
@@ -562,6 +545,18 @@ namespace embdr::lex
         {
           fail (PatternErrorKind::TOO_MANY_STATES, _M_pos);
           return false;
+        }
+      // Patch indices are absolute program slots too (waiting for a group's
+      // `)` patch_alt_jumps call): shifting everything from `index` on
+      // strands them, so any recorded index at or above the insert point
+      // moves with its instruction. Their relative offsets are lengths and
+      // stay put.
+      for (uint32_t p = _M_patch_len; p > 0; --p)
+        {
+          if (_M_patches[p - 1] >= index)
+            {
+              ++_M_patches[p - 1];
+            }
         }
       for (uint32_t i = _M_out._M_program_len; i > index; --i)
         {
@@ -1187,7 +1182,7 @@ namespace embdr::lex
     }
 
     [[nodiscard]] constexpr bool
-    add_range (PatternClass& cls, const char32_t lo, const char32_t hi) noexcept
+    add_range (const PatternClass& cls, const char32_t lo, const char32_t hi) noexcept
     {
       (void)cls;
       if (_M_out._M_range_len >= MaxRange)
@@ -1373,7 +1368,7 @@ namespace embdr::lex
       while (peek () >= '0' && peek () <= '9' || (peek () >= 'a' && peek () <= 'f')
              || (peek () >= 'A' && peek () <= 'F'))
         {
-          value = value * 16U + static_cast<uint32_t> (hex_digit (peek ()));
+          value = value * 16U + static_cast<uint32_t> (_S_hex_digit (peek ()));
           ++_M_pos;
           ++digits;
           if (digits > 2)
@@ -1405,12 +1400,12 @@ namespace embdr::lex
       uint32_t digits = 0;
       while (peek () != '}' && _M_pos < _M_pattern.size ())
         {
-          if (!is_hex (peek ()))
+          if (!_S_is_hex (peek ()))
             {
               fail (PatternErrorKind::INVALID_ESCAPE, start);
               return false;
             }
-          value = value * 16U + static_cast<uint32_t> (hex_digit (peek ()));
+          value = value * 16U + static_cast<uint32_t> (_S_hex_digit (peek ()));
           ++_M_pos;
           ++digits;
           if (digits > 6)
@@ -1435,13 +1430,13 @@ namespace embdr::lex
     }
 
     [[nodiscard]] static constexpr bool
-    is_hex (const char c) noexcept
+    _S_is_hex (const char c) noexcept
     {
       return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
     }
 
     [[nodiscard]] static constexpr int
-    hex_digit (const char c) noexcept
+    _S_hex_digit (const char c) noexcept
     {
       if (c >= '0' && c <= '9')
         return c - '0';

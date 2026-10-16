@@ -199,9 +199,23 @@ TEST_CASE ("the IPv4 example from syntax.txt matches", "[pattern]")
   REQUIRE (ip.matches ("1.2.3.4"));
   REQUIRE (!ip.matches ("1.2.3"));
   REQUIRE (!ip.matches ("1.2.3.4.5"));
-  REQUIRE (!ip.matches ("192.168.0.256"));
   REQUIRE (!ip.matches ("abc"));
   REQUIRE (!ip.matches (""));
+
+  // This regex only bounds each octet to <=3 digits, so 256 matches; the
+  // strict <=255 form needs the alternation below.
+  REQUIRE (ip.matches ("192.168.0.256"));
+
+  // The strict octet-range regex exercises the alternation/JMP-copy
+  // rebase machinery over a bigger program than the loose form above.
+  const auto strict = compile_pattern<256, 32, 64> (
+      "^((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\\.){3}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])$");
+  REQUIRE (strict.has_value ());
+  REQUIRE (strict.value ().matches ("192.168.0.255"));
+  REQUIRE (strict.value ().matches ("0.0.0.0"));
+  REQUIRE (!strict.value ().matches ("192.168.0.256"));
+  REQUIRE (!strict.value ().matches ("256.0.0.1"));
+  REQUIRE (!strict.value ().matches ("192.168"));
 }
 
 TEST_CASE ("the gray example from syntax.txt matches", "[pattern]")
@@ -234,7 +248,8 @@ TEST_CASE ("patterns match over multi-code-point UTF-8 input", "[pattern]")
 {
   // "café" is 5 bytes, 4 code points; 'é' is 2 bytes.
   REQUIRE (matches ("^café$", "caf\xC3\xA9"));
-  REQUIRE (matches ("^c.té$", "caf\xC3\xA9"));
+  // '.' matches exactly one code point: "caté" has an 'f'-free path.
+  REQUIRE (matches ("^c.té$", "cat\xC3\xA9"));
   REQUIRE (matches ("^[à-ÿ]+$", "\xC3\xA9")); // é in a class range
   REQUIRE (!matches ("^café$", "cafe"));
 }
