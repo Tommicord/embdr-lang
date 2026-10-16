@@ -1,5 +1,5 @@
 Language: Cpp
-BasedOnStyle: LLVM
+BasedOnStyle: GNU
 AccessModifierOffset: -2
 AlignConsecutiveAssignments: false
 AlignConsecutiveTableGenDefinitionColons: true
@@ -33,6 +33,7 @@ BraceWrapping:
   SplitEmptyFunction: true
   SplitEmptyRecord: true
   SplitEmptyNamespace: true
+BreakAfterReturnType: All
 BreakBeforeBraces: GNU
 BreakConstructorInitializers: AfterColon
 BreakConstructorInitializersBeforeComma: false
@@ -47,7 +48,7 @@ IncludeCategories:
     Priority: 3
 IncludeIsMainRegex: '([-_](test|unittest))?$'
 IndentCaseBlocks: true
-IndentWidth: 4
+IndentWidth: 2
 IndentAccessModifiers: false
 IndentCaseLabels: true
 InsertNewlineAtEOF: true
@@ -60,5 +61,5 @@ SpaceInEmptyParentheses: false
 SpacesInConditionalStatement: false
 SpacesInCStyleCastParentheses: false
 SpacesInParentheses: false
-TabWidth: 4
+TabWidth: 2
 UseTab: Never

@@ -22,17 +22,18 @@ import embdr.cxxstd.sigHandler;
 import embdr.cxxstd.unwind;
 using namespace embdr;
 
-int main()
+int
+main ()
 {
-    cxxstd::set_min_log_level(cxxstd::LogLevel::INFO);
-    if (!cxxstd::sig_install())
-        {
-            cxxstd::log_error("embdc: Signal handler initialization failed");
-            return EXIT_FAILURE;
-        }
-    else
-        {
-            cxxstd::log_debug("embdc: Signal handler initialized");
-        }
-    return EXIT_SUCCESS;
+  cxxstd::set_min_log_level (cxxstd::LogLevel::INFO);
+  if (!cxxstd::sig_install ())
+    {
+      cxxstd::log_error ("embdc: Signal handler initialization failed");
+      return EXIT_FAILURE;
+    }
+  else
+    {
+      cxxstd::log_debug ("embdc: Signal handler initialized");
+    }
+  return EXIT_SUCCESS;
 }

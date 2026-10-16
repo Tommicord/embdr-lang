@@ -29,7 +29,7 @@ if (CMAKE_BUILD_TYPE STREQUAL "Release")
     add_compile_options(/EHs-c- /GR-)
   else ()
     add_compile_options(
-      -Os
+      -Oz
       -ffunction-sections
       -fdata-sections
       -fno-use-cxa-atexit
@@ -59,22 +59,26 @@ set(CXXSTD_SOURCES
   embdr/cxxstd/logger.cppm
 )
 set(LIB_SOURCES
-  embdr/lib/lex/charInfo.cppm
-  embdr/lib/lex/basicToken.cppm
-  embdr/lib/lex/constructibleLiteral.cppm
-  embdr/lib/lex/lexer.cppm
-  embdr/lib/lex/delimiter.cppm
-  embdr/lib/lex/constructiblePattern.cppm
-  embdr/lib/parse/ast.cppm
-  embdr/lib/parse/parser.cppm
-  embdr/lib/parse/parserType.cppm
-  embdr/lib/parse/parserTemplate.cppm
-  embdr/lib/parse/parserTentative.cppm
-  embdr/lib/parse/parserExpr.cppm
-  embdr/lib/parse/parserPattern.cppm
-  embdr/lib/parse/parserStmt.cppm
-  embdr/lib/parse/parserDecl.cppm
-  embdr/lib/parse/parseAst.cppm
+  embdr/lib/embdr-lex/charInfo.cppm
+  embdr/lib/embdr-lex/basicToken.cppm
+  embdr/lib/embdr-lex/constructibleLiteral.cppm
+  embdr/lib/embdr-lex/lexer.cppm
+  embdr/lib/embdr-lex/delimiter.cppm
+  embdr/lib/embdr-lex/constructiblePattern.cppm
+  embdr/lib/embdr-parse/ast.cppm
+  embdr/lib/embdr-parse/parser.cppm
+  embdr/lib/embdr-parse/parserType.cppm
+  embdr/lib/embdr-parse/parserTemplate.cppm
+  embdr/lib/embdr-parse/parserTentative.cppm
+  embdr/lib/embdr-parse/parserExpr.cppm
+  embdr/lib/embdr-parse/parserPattern.cppm
+  embdr/lib/embdr-parse/parserStmt.cppm
+  embdr/lib/embdr-parse/parserDecl.cppm
+  embdr/lib/embdr-parse/parseAst.cppm
+  embdr/lib/embdr-sema/semaType.cppm
+  embdr/lib/embdr-sema/semaDiagnostic.cppm
+  embdr/lib/embdr-sema/semaScope.cppm
+  embdr/lib/embdr-sema/semaContext.cppm
 )
 set(CXXSTD_MODULES
   embdr.cxxstd.memoryIterator
@@ -154,6 +158,8 @@ if (EMBDR_BUILD_TESTS)
     embdr/tests/delimiter_test.cpp
     embdr/tests/parser_test.cpp
     embdr/tests/pattern_test.cpp
+    embdr/tests/ast_probe.cpp
+    embdr/tests/ast_probe2.cpp
   )
   target_link_libraries(embdr-tests PRIVATE embdc-compiler Catch2::Catch2WithMain)
   include(${CMAKE_CURRENT_SOURCE_DIR}/third-party/catch2/extras/Catch.cmake)
